@@ -46,38 +46,32 @@ public class Percolation {
     //     System.out.println();
     // }
 
-    private boolean adjustOpenSites() {
-        // for all elements
-        // if any adjacent element is open but with different ID, union
-        // System.out.println("Adjust open sites..");
-        boolean adjusting = false;
-        for (int row = 1; row <= n; ++row) {
-            for (int col = 1; col <= n; ++col) {
-                int el1 = findElement(row, col);
-                int el1ID = wquf.find(el1);
-                // check the right side
-                if (col < n) {
-                    if (isOpen(row, col) && isOpen(row, col + 1)) {
-                        int el2 = findElement(row, col + 1);
-                        if (el1ID != wquf.find(el2)) {
-                            wquf.union(el1, el2);
-                            adjusting = true;
-                        }
-                    }
-                }
-                // check the bottom
-                if (row < n) {
-                    if (isOpen(row, col) && isOpen(row + 1, col)) {
-                        int el2 = findElement(row + 1, col);
-                        if (el1ID != wquf.find(el2)) {
-                            wquf.union(el1, el2);
-                            adjusting = true;
-                        }
-                    }
-                }
+    // if any adjacent is open, do a union
+    private void unionAdjacent(int row, int col, int el) {
+        // check left
+        if (col - 1 > 0) {
+            if (isOpen(row, col - 1)) {
+                wquf.union(el, el - 1);
             }
         }
-        return adjusting;
+        // check right
+        if (col + 1 <= n) {
+            if (isOpen(row, col + 1)) {
+                wquf.union(el, el + 1);
+            }
+        }
+        // check top
+        if (row - 1 > 0) {
+            if (isOpen(row - 1, col)) {
+                wquf.union(el, el - n);
+            }
+        }
+        // check bottom
+        if (row + 1 <= n) {
+            if (isOpen(row + 1, col)) {
+                wquf.union(el, el + n);
+            }
+        }
     }
 
     // opens the site (row, col) if it is not open already
@@ -85,28 +79,19 @@ public class Percolation {
         validateRowCol(row, col);
         int el = findElement(row, col);
         // System.out.println("Open " + row + ", " + col + " | el=" + el);
-
-        openSites[wquf.find(el)] = true;
-        openSiteCount++;
-
-        boolean adjustment = false;
-        do {
-            adjustment = adjustOpenSites();
-        } while (adjustment);
-        // printElementIDs();
-        // System.out.println(
-        //         "Number of sets: " + wquf.count() + " " + Arrays.toString(openSites.toArray()));
+        int elID = wquf.find(el);
+        if (!openSites[elID]) {
+            openSites[elID] = true;
+            openSiteCount++;
+            unionAdjacent(row, col, el);
+        }
     }
 
     // is the site (row, col) open?
     public boolean isOpen(int row, int col) {
         validateRowCol(row, col);
         int el = findElement(row, col);
-        return (isElementOpen(el));
-    }
-
-    private boolean isElementOpen(int elidx) {
-        return openSites[wquf.find(elidx)];
+        return openSites[wquf.find(el)];
     }
 
     // is the site (row, col) full?
@@ -117,8 +102,9 @@ public class Percolation {
         validateRowCol(row, col);
         int el = findElement(row, col);
         // full when it's in the same set with any top row element
+        int elID = wquf.find(el);
         for (int i = 0; i < n; ++i) {
-            if (wquf.find(i) == wquf.find(el)) {
+            if (wquf.find(i) == elID) {
                 return true;
             }
         }
@@ -134,10 +120,10 @@ public class Percolation {
     public boolean percolates() {
         // percolates if any element in the top row is in the same set as any
         // element in the bottom row
-        for (int i = 0; i < n; ++i) {
-            int topid = wquf.find(i);
+        for (int i = 1; i <= n; ++i) {
             // only bother to check if top element is open
-            if (isElementOpen(i)) {
+            if (isOpen(1, i)) {
+                int topid = wquf.find(findElement(1, i));
                 int lastel = n * n - 1;
                 for (int j = lastel; j > lastel - n; --j) {
                     // System.out.println(wquf.find(i) + " " + wquf.find(j));
