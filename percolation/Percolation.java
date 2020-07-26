@@ -10,8 +10,8 @@ public class Percolation {
     private final WeightedQuickUnionUF wquf;
     private final int n;
     private final boolean[] openSites;
-    private int topSiteID;
-    private int bottomSiteID;
+    // private int topSiteID;
+    // private int bottomSiteID;
     private int openSiteCount = 0;
 
     // creates n-by-n grid, with all sites initially blocked
@@ -23,8 +23,8 @@ public class Percolation {
         // the 2 extra elements are for the top and bottom "virtual" sites
         wquf = new WeightedQuickUnionUF(n * n + 2);
         // initial ID is its own element index
-        topSiteID = n * n;
-        bottomSiteID = n * n + 1;
+        // topSiteID = n * n;
+        // bottomSiteID = n * n + 1;
         openSites = new boolean[n * n + 2];
     }
 
@@ -42,31 +42,37 @@ public class Percolation {
     }
 
     // if any adjacent is open, do a union
-    private void unionAdjacent(int row, int col, int el) {
+    private boolean unionAdjacent(int row, int col, int el) {
+        boolean isUnion = false;
         // check left
         if (col - 1 > 0) {
             if (isOpen(row, col - 1)) {
                 wquf.union(el, el - 1);
+                isUnion = true;
             }
         }
         // check right
         if (col + 1 <= n) {
             if (isOpen(row, col + 1)) {
                 wquf.union(el, el + 1);
+                isUnion = true;
             }
         }
         // check top
         if (row - 1 > 0) {
             if (isOpen(row - 1, col)) {
                 wquf.union(el, el - n);
+                isUnion = true;
             }
         }
         // check bottom
         if (row + 1 <= n) {
             if (isOpen(row + 1, col)) {
                 wquf.union(el, el + n);
+                isUnion = true;
             }
         }
+        return isUnion;
     }
 
     // opens the site (row, col) if it is not open already
@@ -78,19 +84,21 @@ public class Percolation {
         if (!openSites[elID]) {
             openSites[elID] = true;
             openSiteCount++;
+
             unionAdjacent(row, col, el);
 
             // if it's a top row element, union it to the virtual topSite
-            if (row == 1 && !openSites[topSiteID]) {
+            if (row == 1) {
                 wquf.union(el, (n * n));
-                // to handle data type that sets root nondeterministically (can change)
-                //topSiteID = wquf.find(n * n);
+                // update to handle data type that sets root nondeterministically (can change)
+                // topSiteID = wquf.find(n * n);
             }
+
             // if it's a bottom row element, union it to the virtual bottomSite
-            if (row == n && !openSites[bottomSiteID]) {
+            if (row == n) {
                 wquf.union(el, (n * n + 1));
-                // to handle data type that sets root nondeterministically
-                //bottomSiteID = wquf.find(n * n + 1);
+                // update to handle data type that sets root nondeterministically
+                // bottomSiteID = wquf.find(n * n + 1);
             }
         }
     }
@@ -125,7 +133,6 @@ public class Percolation {
     public boolean percolates() {
         // percolates if the virtual topSite is in the same set as the bottomSite
         if (wquf.find(n * n) == wquf.find(n * n + 1)) {
-            //if (topSiteID == bottomSiteID) {
             return true;
         }
         return false;
