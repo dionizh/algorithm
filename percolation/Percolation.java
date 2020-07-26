@@ -4,13 +4,14 @@
  *  Last modified:     October 16, 1842
  **************************************************************************** */
 
-import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.WeightedQuickUnionUF;
 
 public class Percolation {
     private final WeightedQuickUnionUF wquf;
     private final int n;
     private final boolean[] openSites;
+    private int topSiteID;
+    private int bottomSiteID;
     private int openSiteCount = 0;
 
     // creates n-by-n grid, with all sites initially blocked
@@ -19,11 +20,12 @@ public class Percolation {
         if (n <= 0) {
             throw new IllegalArgumentException("n value must be > 0 (" + n + ")");
         }
-        wquf = new WeightedQuickUnionUF(n * n);
-        openSites = new boolean[n * n];
-        for (int i = 0; i < (n * n); ++i) {
-            openSites[i] = false;
-        }
+        // the 2 extra elements are for the top and bottom "virtual" sites
+        wquf = new WeightedQuickUnionUF(n * n + 2);
+        // initial ID is its own element index
+        topSiteID = n * n;
+        bottomSiteID = n * n + 1;
+        openSites = new boolean[n * n + 2];
     }
 
     private void validateRowCol(int row, int col) {
@@ -38,13 +40,6 @@ public class Percolation {
     private int findElement(int row, int col) {
         return ((row - 1) * n + (col - 1));
     }
-
-    // private void printElementIDs() {
-    //     for (int i = 0; i < (n * n); ++i) {
-    //         System.out.print(wquf.find(i) + " ");
-    //     }
-    //     System.out.println();
-    // }
 
     // if any adjacent is open, do a union
     private void unionAdjacent(int row, int col, int el) {
@@ -84,6 +79,19 @@ public class Percolation {
             openSites[elID] = true;
             openSiteCount++;
             unionAdjacent(row, col, el);
+
+            // if it's a top row element, union it to the virtual topSite
+            if (row == 1 && !openSites[topSiteID]) {
+                wquf.union(el, (n * n));
+                // to handle data type that sets root nondeterministically (can change)
+                //topSiteID = wquf.find(n * n);
+            }
+            // if it's a bottom row element, union it to the virtual bottomSite
+            if (row == n && !openSites[bottomSiteID]) {
+                wquf.union(el, (n * n + 1));
+                // to handle data type that sets root nondeterministically
+                //bottomSiteID = wquf.find(n * n + 1);
+            }
         }
     }
 
@@ -101,12 +109,9 @@ public class Percolation {
         }
         validateRowCol(row, col);
         int el = findElement(row, col);
-        // full when it's in the same set with any top row element
-        int elID = wquf.find(el);
-        for (int i = 0; i < n; ++i) {
-            if (wquf.find(i) == elID) {
-                return true;
-            }
+        // full when it's in the same set with the virtual topSite
+        if (wquf.find(el) == wquf.find(n * n)) {
+            return true;
         }
         return false;
     }
@@ -118,37 +123,27 @@ public class Percolation {
 
     // does the system percolate?
     public boolean percolates() {
-        // percolates if any element in the top row is in the same set as any
-        // element in the bottom row
-        for (int i = 1; i <= n; ++i) {
-            // only bother to check if top element is open
-            if (isOpen(1, i)) {
-                int topid = wquf.find(findElement(1, i));
-                int lastel = n * n - 1;
-                for (int j = lastel; j > lastel - n; --j) {
-                    // System.out.println(wquf.find(i) + " " + wquf.find(j));
-                    if (topid == wquf.find(j)) {
-                        return true;
-                    }
-                }
-            }
+        // percolates if the virtual topSite is in the same set as the bottomSite
+        if (wquf.find(n * n) == wquf.find(n * n + 1)) {
+            //if (topSiteID == bottomSiteID) {
+            return true;
         }
         return false;
     }
 
     // test client (optional)
-    public static void main(String[] args) {
-        In in = new In(args[0]);      // input file
-        int n = in.readInt();         // n-by-n percolation system
-
-        // repeatedly read in sites to open and draw resulting system
-        Percolation perc = new Percolation(n);
-        while (!in.isEmpty()) {
-            int i = in.readInt();
-            int j = in.readInt();
-            System.out.println("open(" + i + ", " + j + ")");
-            perc.open(i, j);
-            System.out.println("numberOfOpenSites()=" + perc.numberOfOpenSites());
-        }
-    }
+    // public static void main(String[] args) {
+    //     In in = new In(args[0]);      // input file
+    //     int n = in.readInt();         // n-by-n percolation system
+    //
+    //     // repeatedly read in sites to open and draw resulting system
+    //     Percolation perc = new Percolation(n);
+    //     while (!in.isEmpty()) {
+    //         int i = in.readInt();
+    //         int j = in.readInt();
+    //         System.out.println("open(" + i + ", " + j + ")");
+    //         perc.open(i, j);
+    //         System.out.println("numberOfOpenSites()=" + perc.numberOfOpenSites());
+    //     }
+    // }
 }
