@@ -82,6 +82,9 @@ public class Deque<Item> implements Iterable<Item> {
             // means this was the first and last element
             last = null;
         }
+        else {
+            first.parent = null;
+        }
         size--;
         return remfirst.item;
     }
@@ -137,12 +140,16 @@ public class Deque<Item> implements Iterable<Item> {
     public static void main(String[] args) {
         // Deque<Integer> deque = new Deque<Integer>();
         // deque.addLast(1);
-        // deque.isEmpty(); //        ==> false
-        // deque.size(); //            ==> 1
-        // deque.removeFirst(); //     ==> 1
-        // deque.addFirst(5);
-        // System.out.println(deque.removeLast()); //      ==> 1
-        //
+        // deque.addFirst(2);
+        // deque.removeLast(); //     ==> 1
+        // deque.addLast(4);
+        // deque.removeFirst(); //     ==> 2
+        // deque.removeLast(); //     ==> 4
+        // deque.size(); //            ==> 0
+        // deque.addLast(8);
+        // deque.addLast(9);
+        // deque.addLast(10);
+        // System.out.println(deque.removeFirst()); //     ==> 4
         //
         // Iterator<Integer> i = deque.iterator();
         // while (i.hasNext()) {
@@ -150,6 +157,7 @@ public class Deque<Item> implements Iterable<Item> {
         //     System.out.print(s + ", ");
         // }
         // System.out.println("size: " + deque.size());
+
 
         // Deque<String> deque = new Deque<>();
         // deque.addFirst("one");
