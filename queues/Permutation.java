@@ -15,16 +15,20 @@ public class Permutation {
         // Deque<String> deque = new Deque<>();
         RandomizedQueue<String> rqueue = new RandomizedQueue<>();
 
-        for (int i = 0; i < k; i++) {
-            String in = StdIn.readString();
+        String in;
+        while (!StdIn.isEmpty()) {
             // deque.addLast(in);
+            in = StdIn.readString();
+            // System.out.println("IN:" + in);
             rqueue.enqueue(in);
         }
 
         Iterator<String> i = rqueue.iterator();
-        while (i.hasNext()) {
+        int count = 0;
+        while (i.hasNext() && count < k) {
             String s = i.next();
             System.out.println(s);
+            count++;
         }
     }
 }
