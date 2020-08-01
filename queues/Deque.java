@@ -42,6 +42,9 @@ public class Deque<Item> implements Iterable<Item> {
         newfirst.item = item;
         newfirst.next = first;
         newfirst.parent = null;
+        if (first != null) {
+            first.parent = newfirst;
+        }
         first = newfirst;
         size++;
         if (last == null) {
@@ -60,7 +63,7 @@ public class Deque<Item> implements Iterable<Item> {
         newlast.parent = last;
         size++;
         if (first == null) {
-            first = last;
+            first = newlast;
         }
         if (last != null) {
             last.next = newlast;
@@ -75,6 +78,10 @@ public class Deque<Item> implements Iterable<Item> {
         }
         Node remfirst = first;
         first = remfirst.next;
+        if (first == null) {
+            // means this was the first and last element
+            last = null;
+        }
         size--;
         return remfirst.item;
     }
@@ -85,8 +92,15 @@ public class Deque<Item> implements Iterable<Item> {
             throw new NoSuchElementException("Deque is empty!");
         }
         Node remlast = last;
-        last = remlast.parent;
-        last.next = null;
+        if (remlast.parent != null) {
+            last = remlast.parent;
+            last.next = null;
+        }
+        else {
+            // no parent, so this element is the first and last
+            first = null;
+            last = null;
+        }
         size--;
         return remlast.item;
     }
@@ -121,20 +135,36 @@ public class Deque<Item> implements Iterable<Item> {
 
     // unit testing (required)
     public static void main(String[] args) {
-        Deque<String> deque = new Deque<>();
-        deque.addFirst("one");
-        deque.addLast("two");
-        deque.addLast("three");
-        System.out.println("Size: " + deque.size());
-        deque.removeLast();
-        deque.removeFirst();
+        // Deque<Integer> deque = new Deque<Integer>();
+        // deque.addLast(1);
+        // deque.isEmpty(); //        ==> false
+        // deque.size(); //            ==> 1
+        // deque.removeFirst(); //     ==> 1
+        // deque.addFirst(5);
+        // System.out.println(deque.removeLast()); //      ==> 1
+        //
+        //
+        // Iterator<Integer> i = deque.iterator();
+        // while (i.hasNext()) {
+        //     Integer s = i.next();
+        //     System.out.print(s + ", ");
+        // }
+        // System.out.println("size: " + deque.size());
 
-        Iterator<String> i = deque.iterator();
-
-        while (i.hasNext()) {
-            String s = i.next();
-            System.out.println(s);
-        }
-        System.out.println("Size: " + deque.size());
+        // Deque<String> deque = new Deque<>();
+        // deque.addFirst("one");
+        // deque.addLast("two");
+        // deque.addLast("three");
+        // System.out.println("Size: " + deque.size());
+        // deque.removeLast();
+        // deque.removeFirst();
+        //
+        // Iterator<String> i = deque.iterator();
+        //
+        // while (i.hasNext()) {
+        //     String s = i.next();
+        //     System.out.println(s);
+        // }
+        // System.out.println("Size: " + deque.size());
     }
 }
