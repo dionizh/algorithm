@@ -10,6 +10,8 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
     private Item[] s;
     private int size = 0;
 
+    private boolean newEnqueue = false;
+
     // construct an empty randomized queue
     public RandomizedQueue() {
         s = (Item[]) new Object[INIT_SIZE];
@@ -20,29 +22,18 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
 
         if (capacity > s.length) {
             // System.out.println("BIGGER RESIZE! size:" + s.length + " capacity:" + capacity);
-            int[] indexes = new int[size];
-            for (int i = 0; i < size; ++i) {
-                indexes[i] = i;
-            }
-            StdRandom.shuffle(indexes);
             for (int i = 0; i < capacity; ++i) {
-                if (i >= size) copy[i] = null;
-                else copy[i] = s[indexes[i]];
+                if (i < size) copy[i] = s[i];
+                else copy[i] = null;
             }
         }
         else {
             // System.out.println("SMALLER RESIZE! size:" + s.length + " capacity:" + capacity);
-            int count = 0;
             for (int i = 0; i < size; ++i) {
-                if (s[i] != null) copy[count] = s[i];
+                if (s[i] != null) copy[i] = s[i];
             }
         }
         s = copy;
-        // System.out.println("AFTER RESIZE");
-        // for (int i = 0; i < capacity; ++i) {
-        //     System.out.print(s[i] + ", ");
-        // }
-        // System.out.println();
     }
 
     // is the randomized queue empty?
@@ -63,6 +54,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         }
         s[size++] = item;
         if (size == s.length) resize(2 * s.length);
+        newEnqueue = true;
     }
 
     // remove and return a random item
@@ -71,7 +63,26 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
             throw new NoSuchElementException("Queue is empty!");
         }
 
-        // System.out.println("dequeue element " + size);
+        if (newEnqueue) {
+            Item[] copy = (Item[]) new Object[s.length];
+            int[] indexes = new int[size];
+            for (int i = 0; i < size; ++i) {
+                indexes[i] = i;
+            }
+            StdRandom.shuffle(indexes);
+            for (int i = 0; i < s.length; ++i) {
+                if (i >= size) copy[i] = null;
+                else copy[i] = s[indexes[i]];
+            }
+            s = copy;
+            newEnqueue = false;
+            // System.out.println("AFTER RANDOMIZE ");
+            // for (int i = 0; i < s.length; ++i) {
+            //     System.out.print(s[i] + ", ");
+            // }
+            // System.out.println();
+        }
+
         size--;
         Item item = s[size];
         s[size] = null;
@@ -138,18 +149,19 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         // rq.enqueue(212);
         // rq.enqueue(262);
         // rq.enqueue(390);
+        // rq.dequeue();
+        // rq.dequeue();
+        // rq.dequeue();
+        // rq.dequeue();
+        // rq.enqueue(1);
+        // rq.enqueue(2);
+        // rq.dequeue();
         // System.out.println("SAMPLE " + rq.sample()); //     ==> null
-        //
+
         // Iterator<Integer> i = rq.iterator();
         // while (i.hasNext()) {
         //     Integer s = i.next();
-        //     System.out.println("i: " + s);
-        //
-        //     // Iterator<Integer> j = rq.iterator();
-        //     // while (j.hasNext()) {
-        //     //     Integer k = j.next();
-        //     //     System.out.println("j: " + k);
-        //     // }
+        //     System.out.print(s + ", ");
         // }
         // System.out.println("size: " + rq.size());
         //
