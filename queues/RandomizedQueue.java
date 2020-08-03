@@ -10,8 +10,6 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
     private Item[] s;
     private int size = 0;
 
-    private boolean newEnqueue = false;
-
     // construct an empty randomized queue
     public RandomizedQueue() {
         s = (Item[]) new Object[INIT_SIZE];
@@ -48,39 +46,26 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
 
     // add the item
     public void enqueue(Item item) {
-        // System.out.println("Enqueue " + item);
         if (item == null) {
             throw new IllegalArgumentException("Input item cannot be null!");
         }
-        s[size++] = item;
+        if (size == 0) {
+            s[size++] = item;
+        }
+        else {
+            int ran = StdRandom.uniform(0, size);
+            Item tmp = s[ran];
+            s[ran] = item;
+            s[size++] = tmp;
+        }
+
         if (size == s.length) resize(2 * s.length);
-        newEnqueue = true;
     }
 
     // remove and return a random item
     public Item dequeue() {
         if (isEmpty()) {
             throw new NoSuchElementException("Queue is empty!");
-        }
-
-        if (newEnqueue) {
-            Item[] copy = (Item[]) new Object[s.length];
-            int[] indexes = new int[size];
-            for (int i = 0; i < size; ++i) {
-                indexes[i] = i;
-            }
-            StdRandom.shuffle(indexes);
-            for (int i = 0; i < s.length; ++i) {
-                if (i >= size) copy[i] = null;
-                else copy[i] = s[indexes[i]];
-            }
-            s = copy;
-            newEnqueue = false;
-            // System.out.println("AFTER RANDOMIZE ");
-            // for (int i = 0; i < s.length; ++i) {
-            //     System.out.print(s[i] + ", ");
-            // }
-            // System.out.println();
         }
 
         size--;
@@ -157,7 +142,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         // rq.enqueue(2);
         // rq.dequeue();
         // System.out.println("SAMPLE " + rq.sample()); //     ==> null
-
+        //
         // Iterator<Integer> i = rq.iterator();
         // while (i.hasNext()) {
         //     Integer s = i.next();
