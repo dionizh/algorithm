@@ -2,6 +2,8 @@ import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.StdDraw;
 import edu.princeton.cs.algs4.StdOut;
 
+import java.util.InputMismatchException;
+
 public class BruteCollinearPoints {
     private final LineSegment[] ls;
     private int count = 0;
@@ -11,10 +13,23 @@ public class BruteCollinearPoints {
         if (points == null) {
             throw new IllegalArgumentException("Points are null");
         }
+
         ls = new LineSegment[points.length * 2];
 
         for (int i = 0; i < points.length; i++) {
-            if (points[i] == null) throw new IllegalArgumentException("Point " + i + " is null");
+            // check duplicates
+            if (i > 0) {
+                for (int d = 0; d <= i - 1; d++) {
+                    if (points[d].slopeTo(points[i]) == Double.NEGATIVE_INFINITY) {
+                        throw new IllegalArgumentException(
+                                "Duplicate point: " + points[i].toString());
+                    }
+                }
+            }
+
+            // System.out.println(points[i].toString());
+            if (points[i] == null)
+                throw new IllegalArgumentException("Point " + i + " is null");
             // and if contains a repeated point
             Point refPoint = points[i];
             // System.out.println("\nREF point " + refPoint.toString());
@@ -79,7 +94,12 @@ public class BruteCollinearPoints {
 
     // the line segments
     public LineSegment[] segments() {
-        return ls.clone();
+        LineSegment[] copy = new LineSegment[count];
+        for (int i = 0; i < count; i++) {
+            if (ls[i] != null) copy[i] = ls[i];
+        }
+        return copy;
+        // return ls.clone();
     }
 
     public static void main(String[] args) {
@@ -89,9 +109,14 @@ public class BruteCollinearPoints {
         int n = in.readInt();
         Point[] points = new Point[n];
         for (int i = 0; i < n; i++) {
-            int x = in.readInt();
-            int y = in.readInt();
-            points[i] = new Point(x, y);
+            try {
+                int x = in.readInt();
+                int y = in.readInt();
+                points[i] = new Point(x, y);
+            }
+            catch (IllegalArgumentException | InputMismatchException e) {
+                points[i] = null;
+            }
         }
 
         StdDraw.enableDoubleBuffering();
@@ -102,11 +127,14 @@ public class BruteCollinearPoints {
         StdDraw.setPenRadius(0.01);
         StdDraw.setPenColor(StdDraw.MAGENTA);
         BruteCollinearPoints collinear = new BruteCollinearPoints(points);
+        // int i = 0;
         for (LineSegment segment : collinear.segments()) {
+            // System.out.println("SEGMENT " + i + ": " + segment);
             if (segment != null) {
                 StdOut.println(segment);
                 segment.draw();
             }
+            // i++;
         }
         StdDraw.show();
 

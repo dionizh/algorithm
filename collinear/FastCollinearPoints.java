@@ -20,6 +20,17 @@ public class FastCollinearPoints {
         // For each other point q, determine the slope it makes with p.
         // Sort the points according to the slopes they makes with p.
         for (int p = 0; p < points.length; p++) {
+            // check duplicates
+            if (p > 0) {
+                for (int d = 0; d <= p - 1; d++) {
+                    // the same points
+                    if (points[d].slopeTo(points[p]) == Double.NEGATIVE_INFINITY) {
+                        throw new IllegalArgumentException(
+                                "Duplicate point: " + points[p].toString());
+                    }
+                }
+            }
+
             Point refPoint = points[p];
             // System.out.println("\nREF point " + refPoint.toString());
 
@@ -97,7 +108,7 @@ public class FastCollinearPoints {
         // only add if ref point is the min the line
         // else ignore it
         Point endPoint = segmems[memcount - 1];
-        if (refPoint.toString().equals(segmems[0].toString())) {
+        if (refPoint.slopeTo(segmems[0]) == Double.NEGATIVE_INFINITY) {
             // add the line segment
             ls[segcount++] = new LineSegment(refPoint, endPoint);
             // System.out.printf("LINE SEGMENT %s --> %s segcount %s\n",
@@ -112,7 +123,12 @@ public class FastCollinearPoints {
 
     // the line segments
     public LineSegment[] segments() {
-        return ls.clone();
+        LineSegment[] copy = new LineSegment[segcount];
+        for (int i = 0; i < segcount; i++) {
+            if (ls[i] != null) copy[i] = ls[i];
+        }
+        return copy;
+        // return ls.clone();
     }
 
     public static void main(String[] args) {

@@ -61,11 +61,11 @@ public class Point implements Comparable<Point> {
      */
     public double slopeTo(Point that) {
         /* YOUR CODE HERE */
-        if (that == null) throw new NullPointerException("slopeTo argument is null");
-        // horizontal
-        if (this.y == that.y) return +0.0;
-        if (this.x == that.x) return Double.POSITIVE_INFINITY;
+        if (that == null) throw new IllegalArgumentException("slopeTo argument is null");
         if (this.x == that.x && this.y == that.y) return Double.NEGATIVE_INFINITY;
+        if (this.y == that.y) return +0.0; // horizontal
+        if (this.x == that.x) return Double.POSITIVE_INFINITY;
+
         return (double) (that.y - this.y) / (double) (that.x - this.x);
     }
 
@@ -83,7 +83,7 @@ public class Point implements Comparable<Point> {
      */
     public int compareTo(Point that) {
         /* YOUR CODE HERE */
-        if (that == null) throw new NullPointerException("slopeTo argument is null");
+        if (that == null) throw new IllegalArgumentException("slopeTo argument is null");
         if (this.y < that.y) return -1;
         if (this.y == that.y && this.x < that.x) return -1;
         if (this.y == that.y && this.x == that.x) return 0;
@@ -101,7 +101,7 @@ public class Point implements Comparable<Point> {
             return 0;
         }
     }
-    
+
     /**
      * Compares two points by the slope they make with this point.
      * The slope is defined as in the slopeTo() method.
@@ -131,5 +131,9 @@ public class Point implements Comparable<Point> {
      */
     public static void main(String[] args) {
         /* YOUR CODE HERE */
+        // Point p = new Point(5, 7);
+        // Point q = new Point(8, 3);
+        // Point r = new Point(5, 7);
+        // System.out.println(p.slopeOrder().compare(q, r));
     }
 }
