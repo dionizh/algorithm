@@ -10,10 +10,11 @@ public class BruteCollinearPoints {
     private Point[] points;
     private SegmentInfo[] sinfo;
     private int sinfoCount = 0;
+    private int segcount = 0;
 
     private class SegmentInfo {
-        int min;
-        int max;
+        Point ref = null;
+        Point end = null;
         double slope;
     }
 
@@ -25,41 +26,60 @@ public class BruteCollinearPoints {
         ls = new LineSegment[points.length];
         sinfo = new SegmentInfo[points.length];
 
-        Arrays.sort(points, Point.BY_AXIS);
+        // Arrays.sort(points, Point.BY_AXIS);
 
-        System.out.println("Sorted points:");
-        for (int i = 0; i < points.length; i++) {
-            System.out.println(points[i].toString());
-        }
+        // System.out.println("Sorted points:");
+        // for (int i = 0; i < points.length; i++) {
+        //     System.out.println(points[i].toString());
+        // }
         this.points = points;
 
-        for (int i = 0; i < points.length - 3; i++) {
+        for (int i = 0; i < points.length; i++) {
             if (points[i] == null) throw new IllegalArgumentException("Point " + i + " is null");
             // and if contains a repeated point
+            Point refPoint = points[i];
+            // System.out.println("\nREF point " + refPoint.toString());
 
-            for (int j = i + 1; j < points.length - 2; j++) {
+            for (int j = 0; j < points.length; j++) {
                 if (j == i) continue;
-                double slope1 = points[i].slopeTo(points[j]);
+                Point p1 = points[j];
+                double slope1 = refPoint.slopeTo(p1);
 
-                for (int k = i + 2; k < points.length - 1; k++) {
-                    if (k == j) continue;
-                    double slope2 = points[i].slopeTo(points[k]);
+                for (int k = 0; k < points.length; k++) {
+                    if (k == i || k == j) continue;
+                    Point p2 = points[k];
+                    double slope2 = refPoint.slopeTo(p2);
 
-                    for (int l = i + 3; l < points.length; l++) {
-                        if (l == k) continue;
-                        double slope3 = points[i].slopeTo(points[l]);
+                    for (int l = 0; l < points.length; l++) {
+                        if (l == k || l == j || l == i) continue;
+                        Point p3 = points[l];
+                        double slope3 = refPoint.slopeTo(p3);
 
-                        // System.out.printf(
-                        //         "i: %s point1: %s point2: %s point3: %s point4: %s\n",
-                        //         i, points[i].toString(), points[j].toString(),
-                        //         points[k].toString(), points[l].toString());
-                        // System.out
-                        //         .printf("i: %s slope1: %s slope2: %s slope3: %s\n",
-                        //                 i, slope1, slope2, slope3);
                         if (slope1 == slope2 && slope2 == slope3) {
-                            // System.out.printf("Potential segment i %s j %s k %s l %s\n",
-                            //                   i, j, k, l);
-                            addSegment(i, l, slope1);
+                            // System.out.printf(" COLLINEAR %s %s %s %s\n", refPoint.toString(),
+                            //                   p1.toString(), p2.toString(), p3.toString());
+
+                            int memcount = 4; // at least 4 points to become a segment
+                            // extra point, just check one more as max is 5
+                            Point p4 = null;
+                            for (int m = 0; m < points.length; m++) {
+                                if (m == l || m == k || m == j || m == i) continue;
+                                if (refPoint.slopeTo(points[m]) == slope1) {
+                                    p4 = points[m];
+                                    memcount++;
+                                    // System.out.println("Extra point: " + p4.toString());
+                                    break;
+                                }
+                            }
+
+                            Point[] segmems = new Point[memcount];
+                            segmems[0] = refPoint;
+                            segmems[1] = p1;
+                            segmems[2] = p2;
+                            segmems[3] = p3;
+                            if (memcount == 5) segmems[4] = p4;
+
+                            addSegmentMems(segmems);
                         }
                     }
                 }
@@ -68,47 +88,80 @@ public class BruteCollinearPoints {
 
         // add the actual line segments
         for (int i = 0; i < sinfoCount; i++) {
-            int a = sinfo[i].min;
-            int b = sinfo[i].max;
-            ls[count++] = new LineSegment(this.points[a], this.points[b]);
-            System.out.printf("ADD SEGMENT a %s b %s count %s\n", a, b, count);
+            Point ref = sinfo[i].ref;
+            Point end = sinfo[i].end;
+            ls[count++] = new LineSegment(ref, end);
+            // System.out.printf("ADD SEGMENT a %s b %s count %s\n", ref, end, count);
         }
     }
 
-    private void addSegment(int min, int max, double slope) {
-        boolean exists = false;
-        for (int i = 0; i < sinfoCount; i++) {
-            if (sinfo[i].max == max && sinfo[i].min == min) {
-                exists = true;
-                continue;
-            }
-            if (sinfo[i].min == min) {
-                if (sinfo[i].max < max) {
-                    System.out
-                            .printf("Update sinfo min: %s max: %s -> %s\n", min, sinfo[i].max, max);
-                    sinfo[i].max = max;
+    private void addSegmentMems(Point[] segmems) {
+        Point refPoint = segmems[0];
+        Arrays.sort(segmems, Point.BY_AXIS);
+
+        // only consider if refpoint is the outermost
+        if (refPoint == segmems[0]) {
+            boolean exists = false;
+            Point endPoint = segmems[segmems.length - 1];
+            for (int i = 0; i < sinfoCount; ++i) {
+                if (sinfo[i].ref.toString().equals(refPoint.toString()) &&
+                        sinfo[i].end.toString().equals(endPoint.toString())) {
+                    exists = true;
+                    break;
                 }
-                exists = true;
             }
-            if (sinfo[i].max == max) {
-                if (sinfo[i].min > min) {
-                    System.out
-                            .printf("Update sinfo min: %s -> %s max: %s\n", sinfo[i].min, min, max);
-                    sinfo[i].min = min;
-                }
-                exists = true;
+            // only add if not already added
+            if (!exists) {
+                SegmentInfo si = new SegmentInfo();
+                si.ref = refPoint;
+                si.end = endPoint;
+                sinfo[sinfoCount++] = si;
+
+                // System.out.println("Sorted segmems:");
+                // for (int i = 0; i < segmems.length; i++) {
+                //     System.out.print(segmems[i].toString());
+                // }
+                // System.out.println("");
+                //
+                // System.out.println("* ADD to sinfo " + refPoint.toString() + endPoint.toString());
             }
-            if (slope == sinfo[i].slope) exists = true;
-        }
-        if (!exists) {
-            System.out.printf("Add to sinfo: %s %s\n", min, max);
-            SegmentInfo s = new SegmentInfo();
-            s.min = min;
-            s.max = max;
-            s.slope = slope;
-            sinfo[sinfoCount++] = s;
         }
     }
+
+    // private void addSegment(int min, int max, double slope) {
+    //     boolean exists = false;
+    //     for (int i = 0; i < sinfoCount; i++) {
+    //         if (sinfo[i].max == max && sinfo[i].min == min) {
+    //             exists = true;
+    //             continue;
+    //         }
+    //         if (sinfo[i].min == min) {
+    //             if (sinfo[i].max < max) {
+    //                 System.out
+    //                         .printf("Update sinfo min: %s max: %s -> %s\n", min, sinfo[i].max, max);
+    //                 sinfo[i].max = max;
+    //             }
+    //             exists = true;
+    //         }
+    //         if (sinfo[i].max == max) {
+    //             if (sinfo[i].min > min) {
+    //                 System.out
+    //                         .printf("Update sinfo min: %s -> %s max: %s\n", sinfo[i].min, min, max);
+    //                 sinfo[i].min = min;
+    //             }
+    //             exists = true;
+    //         }
+    //         if (slope == sinfo[i].slope) exists = true;
+    //     }
+    //     if (!exists) {
+    //         System.out.printf("Add to sinfo: %s %s\n", min, max);
+    //         SegmentInfo s = new SegmentInfo();
+    //         s.min = min;
+    //         s.max = max;
+    //         s.slope = slope;
+    //         sinfo[sinfoCount++] = s;
+    //     }
+    // }
 
     // the number of line segments
     public int numberOfSegments() {

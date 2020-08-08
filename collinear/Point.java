@@ -85,7 +85,6 @@ public class Point implements Comparable<Point> {
      */
     public int compareTo(Point that) {
         /* YOUR CODE HERE */
-        if (that == null) return 1;
         if (this.y < that.y) return -1;
         if (this.y == that.y && this.x < that.x) return -1;
         return 1;
@@ -132,11 +131,6 @@ public class Point implements Comparable<Point> {
     public String toString() {
         /* DO NOT MODIFY */
         return "(" + x + ", " + y + ")";
-    }
-
-    public boolean equals(Point p) {
-        if (this.x == p.x && this.y == p.y) return true;
-        return false;
     }
 
     /**

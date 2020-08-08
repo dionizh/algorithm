@@ -97,7 +97,7 @@ public class FastCollinearPoints {
         // only add if ref point is the min the line
         // else ignore it
         Point endPoint = segmems[memcount - 1];
-        if (refPoint.equals(segmems[0])) {
+        if (refPoint.toString().equals(segmems[0].toString())) {
             // add the line segment
             ls[segcount++] = new LineSegment(refPoint, endPoint);
             // System.out.printf("LINE SEGMENT %s --> %s segcount %s\n",
