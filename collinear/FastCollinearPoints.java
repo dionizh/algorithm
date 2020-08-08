@@ -98,7 +98,7 @@ public class FastCollinearPoints {
                     addSegmentMems(segmems, memcount, refPoint);
 
                     // once a collinear is found, we can skip ahead
-                    q = r;
+                    q = r - 1;
                 }
             }
         }
@@ -159,7 +159,7 @@ public class FastCollinearPoints {
         StdDraw.setYscale(0, 32768);
 
         // print and draw the line segments
-        // StdDraw.setPenRadius(0.01);
+        StdDraw.setPenRadius(0.005);
         StdDraw.setPenColor(StdDraw.PRINCETON_ORANGE);
         FastCollinearPoints collinear = new FastCollinearPoints(points);
         for (LineSegment segment : collinear.segments()) {
@@ -171,11 +171,13 @@ public class FastCollinearPoints {
         StdDraw.show();
 
         // draw the points
-        // StdDraw.setPenRadius(0.02);
+        StdDraw.setPenRadius(0.01);
         StdDraw.setPenColor(StdDraw.BOOK_RED);
         for (Point p : points) {
             p.draw();
         }
         StdDraw.show();
+
+        System.out.println("Total segments:" + collinear.numberOfSegments());
     }
 }
