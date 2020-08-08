@@ -5,12 +5,10 @@ import edu.princeton.cs.algs4.StdOut;
 import java.util.Arrays;
 
 public class BruteCollinearPoints {
-    private LineSegment[] ls;
+    private final LineSegment[] ls;
     private int count = 0;
-    private Point[] points;
     private SegmentInfo[] sinfo;
     private int sinfoCount = 0;
-    private int segcount = 0;
 
     private class SegmentInfo {
         Point ref = null;
@@ -25,14 +23,6 @@ public class BruteCollinearPoints {
         }
         ls = new LineSegment[points.length];
         sinfo = new SegmentInfo[points.length];
-
-        // Arrays.sort(points, Point.BY_AXIS);
-
-        // System.out.println("Sorted points:");
-        // for (int i = 0; i < points.length; i++) {
-        //     System.out.println(points[i].toString());
-        // }
-        this.points = points;
 
         for (int i = 0; i < points.length; i++) {
             if (points[i] == null) throw new IllegalArgumentException("Point " + i + " is null");
@@ -50,9 +40,9 @@ public class BruteCollinearPoints {
                     Point p2 = points[k];
                     double slope2 = refPoint.slopeTo(p2);
 
-                    for (int l = 0; l < points.length; l++) {
-                        if (l == k || l == j || l == i) continue;
-                        Point p3 = points[l];
+                    for (int lp = 0; lp < points.length; lp++) {
+                        if (lp == k || lp == j || lp == i) continue;
+                        Point p3 = points[lp];
                         double slope3 = refPoint.slopeTo(p3);
 
                         if (slope1 == slope2 && slope2 == slope3) {
@@ -63,7 +53,7 @@ public class BruteCollinearPoints {
                             // extra point, just check one more as max is 5
                             Point p4 = null;
                             for (int m = 0; m < points.length; m++) {
-                                if (m == l || m == k || m == j || m == i) continue;
+                                if (m == lp || m == k || m == j || m == i) continue;
                                 if (refPoint.slopeTo(points[m]) == slope1) {
                                     p4 = points[m];
                                     memcount++;
@@ -97,7 +87,7 @@ public class BruteCollinearPoints {
 
     private void addSegmentMems(Point[] segmems) {
         Point refPoint = segmems[0];
-        Arrays.sort(segmems, Point.BY_AXIS);
+        Arrays.sort(segmems);
 
         // only consider if refpoint is the outermost
         if (refPoint == segmems[0]) {
@@ -128,41 +118,6 @@ public class BruteCollinearPoints {
         }
     }
 
-    // private void addSegment(int min, int max, double slope) {
-    //     boolean exists = false;
-    //     for (int i = 0; i < sinfoCount; i++) {
-    //         if (sinfo[i].max == max && sinfo[i].min == min) {
-    //             exists = true;
-    //             continue;
-    //         }
-    //         if (sinfo[i].min == min) {
-    //             if (sinfo[i].max < max) {
-    //                 System.out
-    //                         .printf("Update sinfo min: %s max: %s -> %s\n", min, sinfo[i].max, max);
-    //                 sinfo[i].max = max;
-    //             }
-    //             exists = true;
-    //         }
-    //         if (sinfo[i].max == max) {
-    //             if (sinfo[i].min > min) {
-    //                 System.out
-    //                         .printf("Update sinfo min: %s -> %s max: %s\n", sinfo[i].min, min, max);
-    //                 sinfo[i].min = min;
-    //             }
-    //             exists = true;
-    //         }
-    //         if (slope == sinfo[i].slope) exists = true;
-    //     }
-    //     if (!exists) {
-    //         System.out.printf("Add to sinfo: %s %s\n", min, max);
-    //         SegmentInfo s = new SegmentInfo();
-    //         s.min = min;
-    //         s.max = max;
-    //         s.slope = slope;
-    //         sinfo[sinfoCount++] = s;
-    //     }
-    // }
-
     // the number of line segments
     public int numberOfSegments() {
         return count;
@@ -170,7 +125,7 @@ public class BruteCollinearPoints {
 
     // the line segments
     public LineSegment[] segments() {
-        return ls;
+        return ls.clone();
     }
 
     public static void main(String[] args) {
@@ -192,7 +147,6 @@ public class BruteCollinearPoints {
         // print and draw the line segments
         StdDraw.setPenRadius(0.01);
         StdDraw.setPenColor(StdDraw.MAGENTA);
-        // FastCollinearPoints collinear = new FastCollinearPoints(points);
         BruteCollinearPoints collinear = new BruteCollinearPoints(points);
         for (LineSegment segment : collinear.segments()) {
             if (segment != null) {

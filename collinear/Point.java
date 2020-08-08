@@ -17,9 +17,6 @@ public class Point implements Comparable<Point> {
     private final int x;     // x-coordinate of this point
     private final int y;     // y-coordinate of this point
 
-    public final Comparator<Point> BY_SLOPE = new BySlope();
-    public static final Comparator<Point> BY_AXIS = new ByAxis();
-
     /**
      * Initializes a new point.
      *

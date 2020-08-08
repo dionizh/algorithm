@@ -33,7 +33,7 @@ public class FastCollinearPoints {
                 }
             }
 
-            Arrays.sort(sortPoints, refPoint.BY_SLOPE);
+            Arrays.sort(sortPoints, refPoint.slopeOrder());
             // System.out.println("Sorted points:");
             // for (int i = 0; i < sortPoints.length; i++) {
             //     System.out.print(sortPoints[i].toString());
@@ -87,7 +87,7 @@ public class FastCollinearPoints {
     }
 
     private void addSegmentMems(Point[] segmems, int memcount, Point refPoint) {
-        Arrays.sort(segmems, Point.BY_AXIS);
+        Arrays.sort(segmems);
         // System.out.println("Sorted segmems:");
         // for (int i = 0; i < segmems.length; i++) {
         //     System.out.print(segmems[i].toString());
@@ -112,7 +112,7 @@ public class FastCollinearPoints {
 
     // the line segments
     public LineSegment[] segments() {
-        return ls;
+        return ls.clone();
     }
 
     public static void main(String[] args) {
