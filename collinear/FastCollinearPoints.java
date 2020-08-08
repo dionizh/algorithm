@@ -14,20 +14,14 @@ public class FastCollinearPoints {
         if (points == null) {
             throw new IllegalArgumentException("Points are null");
         }
-        ls = new LineSegment[points.length];
-
-        if (points.length < 4) return;
-
         // check null
         for (int i = 0; i < points.length; i++) {
             if (points[i] == null)
                 throw new IllegalArgumentException("Point " + i + " is null");
         }
 
-        // For each other point q, determine the slope it makes with p.
-        // Sort the points according to the slopes they makes with p.
+        // check duplicates
         for (int p = 0; p < points.length; p++) {
-            // check duplicates
             if (p > 0) {
                 for (int d = 0; d <= p - 1; d++) {
                     // the same points
@@ -37,7 +31,16 @@ public class FastCollinearPoints {
                     }
                 }
             }
+        }
 
+        if (points.length < 4) return;
+
+        // worst case is quadratic according to FAQ!
+        ls = new LineSegment[points.length * points.length];
+
+        // For each other point q, determine the slope it makes with p.
+        // Sort the points according to the slopes they makes with p.
+        for (int p = 0; p < points.length; p++) {
             Point refPoint = points[p];
             // System.out.println("\nREF point " + refPoint.toString());
 
