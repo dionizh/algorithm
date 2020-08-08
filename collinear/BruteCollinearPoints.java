@@ -16,6 +16,13 @@ public class BruteCollinearPoints {
 
         ls = new LineSegment[points.length * 2];
 
+        // check null
+        for (int i = 0; i < points.length; i++) {
+            if (points[i] == null)
+                throw new IllegalArgumentException("Point " + i + " is null");
+            // System.out.println(points[i].toString());
+        }
+
         for (int i = 0; i < points.length; i++) {
             // check duplicates
             if (i > 0) {
@@ -27,10 +34,6 @@ public class BruteCollinearPoints {
                 }
             }
 
-            // System.out.println(points[i].toString());
-            if (points[i] == null)
-                throw new IllegalArgumentException("Point " + i + " is null");
-            // and if contains a repeated point
             Point refPoint = points[i];
             // System.out.println("\nREF point " + refPoint.toString());
 

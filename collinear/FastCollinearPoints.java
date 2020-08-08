@@ -3,6 +3,7 @@ import edu.princeton.cs.algs4.StdDraw;
 import edu.princeton.cs.algs4.StdOut;
 
 import java.util.Arrays;
+import java.util.InputMismatchException;
 
 public class FastCollinearPoints {
     private LineSegment[] ls;
@@ -16,6 +17,12 @@ public class FastCollinearPoints {
         ls = new LineSegment[points.length];
 
         if (points.length < 4) return;
+
+        // check null
+        for (int i = 0; i < points.length; i++) {
+            if (points[i] == null)
+                throw new IllegalArgumentException("Point " + i + " is null");
+        }
 
         // For each other point q, determine the slope it makes with p.
         // Sort the points according to the slopes they makes with p.
@@ -137,9 +144,14 @@ public class FastCollinearPoints {
         int n = in.readInt();
         Point[] points = new Point[n];
         for (int i = 0; i < n; i++) {
-            int x = in.readInt();
-            int y = in.readInt();
-            points[i] = new Point(x, y);
+            try {
+                int x = in.readInt();
+                int y = in.readInt();
+                points[i] = new Point(x, y);
+            }
+            catch (IllegalArgumentException | InputMismatchException e) {
+                points[i] = null;
+            }
         }
 
         StdDraw.enableDoubleBuffering();
