@@ -2,27 +2,16 @@ import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.StdDraw;
 import edu.princeton.cs.algs4.StdOut;
 
-import java.util.Arrays;
-
 public class BruteCollinearPoints {
     private final LineSegment[] ls;
     private int count = 0;
-    private SegmentInfo[] sinfo;
-    private int sinfoCount = 0;
-
-    private class SegmentInfo {
-        Point ref = null;
-        Point end = null;
-        double slope;
-    }
 
     // finds all line segments containing 4 points
     public BruteCollinearPoints(Point[] points) {
         if (points == null) {
             throw new IllegalArgumentException("Points are null");
         }
-        ls = new LineSegment[points.length];
-        sinfo = new SegmentInfo[points.length];
+        ls = new LineSegment[points.length * 2];
 
         for (int i = 0; i < points.length; i++) {
             if (points[i] == null) throw new IllegalArgumentException("Point " + i + " is null");
@@ -49,72 +38,37 @@ public class BruteCollinearPoints {
                             // System.out.printf(" COLLINEAR %s %s %s %s\n", refPoint.toString(),
                             //                   p1.toString(), p2.toString(), p3.toString());
 
-                            int memcount = 4; // at least 4 points to become a segment
-                            // extra point, just check one more as max is 5
-                            Point p4 = null;
-                            for (int m = 0; m < points.length; m++) {
-                                if (m == lp || m == k || m == j || m == i) continue;
-                                if (refPoint.slopeTo(points[m]) == slope1) {
-                                    p4 = points[m];
-                                    memcount++;
-                                    // System.out.println("Extra point: " + p4.toString());
-                                    break;
-                                }
-                            }
-
-                            Point[] segmems = new Point[memcount];
-                            segmems[0] = refPoint;
-                            segmems[1] = p1;
-                            segmems[2] = p2;
-                            segmems[3] = p3;
-                            if (memcount == 5) segmems[4] = p4;
-
+                            Point[] segmems = { refPoint, p1, p2, p3 };
                             addSegmentMems(segmems);
                         }
                     }
                 }
             }
         }
-
-        // add the actual line segments
-        for (int i = 0; i < sinfoCount; i++) {
-            Point ref = sinfo[i].ref;
-            Point end = sinfo[i].end;
-            ls[count++] = new LineSegment(ref, end);
-            // System.out.printf("ADD SEGMENT a %s b %s count %s\n", ref, end, count);
-        }
     }
 
     private void addSegmentMems(Point[] segmems) {
+        for (int i = 0; i < segmems.length - 1; i++) {
+            if (segmems[i].compareTo(segmems[i + 1]) > 0) {
+                // System.out.println("Not in ascending order, skip!");
+                return;
+            }
+        }
+
+        // System.out.printf("UNSorted segmems: ");
+        // for (int i = 0; i < segmems.length; i++) {
+        //     System.out.print(segmems[i].toString());
+        // }
+        // System.out.println("");
+
         Point refPoint = segmems[0];
-        Arrays.sort(segmems);
+        // Arrays.sort(segmems);
 
         // only consider if refpoint is the outermost
         if (refPoint == segmems[0]) {
-            boolean exists = false;
             Point endPoint = segmems[segmems.length - 1];
-            for (int i = 0; i < sinfoCount; ++i) {
-                if (sinfo[i].ref.toString().equals(refPoint.toString()) &&
-                        sinfo[i].end.toString().equals(endPoint.toString())) {
-                    exists = true;
-                    break;
-                }
-            }
-            // only add if not already added
-            if (!exists) {
-                SegmentInfo si = new SegmentInfo();
-                si.ref = refPoint;
-                si.end = endPoint;
-                sinfo[sinfoCount++] = si;
-
-                // System.out.println("Sorted segmems:");
-                // for (int i = 0; i < segmems.length; i++) {
-                //     System.out.print(segmems[i].toString());
-                // }
-                // System.out.println("");
-                //
-                // System.out.println("* ADD to sinfo " + refPoint.toString() + endPoint.toString());
-            }
+            ls[count++] = new LineSegment(refPoint, endPoint);
+            // System.out.printf("ADD SEGMENT a %s b %s count %s\n", refPoint, endPoint, count);
         }
     }
 

@@ -61,6 +61,7 @@ public class Point implements Comparable<Point> {
      */
     public double slopeTo(Point that) {
         /* YOUR CODE HERE */
+        if (that == null) throw new NullPointerException("slopeTo argument is null");
         // horizontal
         if (this.y == that.y) return +0.0;
         if (this.x == that.x) return Double.POSITIVE_INFINITY;
@@ -82,16 +83,17 @@ public class Point implements Comparable<Point> {
      */
     public int compareTo(Point that) {
         /* YOUR CODE HERE */
+        if (that == null) throw new NullPointerException("slopeTo argument is null");
         if (this.y < that.y) return -1;
         if (this.y == that.y && this.x < that.x) return -1;
+        if (this.y == that.y && this.x == that.x) return 0;
         return 1;
     }
 
     private class BySlope implements Comparator<Point> {
         public int compare(Point p1, Point p2) {
-            // if (p1.y == p2.y) return +0;
-            // if (p1.x == p2.x) return Double.POSITIVE_INFINITY;
-            // if (this.x == that.x && this.y == that.y) return Double.NEGATIVE_INFINITY;
+            if (p1 == null || p2 == null)
+                throw new NullPointerException("BySlope arguments are null");
             double slope1 = slopeTo(p1);
             double slope2 = slopeTo(p2);
             if (slope1 < slope2) return -1;
@@ -99,13 +101,7 @@ public class Point implements Comparable<Point> {
             return 0;
         }
     }
-
-    private static class ByAxis implements Comparator<Point> {
-        public int compare(Point p1, Point p2) {
-            return p1.compareTo(p2);
-        }
-    }
-
+    
     /**
      * Compares two points by the slope they make with this point.
      * The slope is defined as in the slopeTo() method.

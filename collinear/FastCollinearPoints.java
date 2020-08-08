@@ -43,7 +43,7 @@ public class FastCollinearPoints {
             // Check if any 3 (or more) adjacent points in the sorted order have equal slopes
             // with respect to p. If so, these points, together with p, are collinear.
             int q = 0;
-            double slope1 = -1000.0;
+            double slope1;
             for (q = 0; q < sortPoints.length - 2; q++) {
                 Point p1 = sortPoints[q];
                 Point p2 = sortPoints[q + 1];
