@@ -108,6 +108,7 @@ public class FastCollinearPoints {
     }
 
     private void addSegmentMems(Point[] segmems, int memcount, Point refPoint) {
+        // POTENTIAL OPTIMIZATION
         Arrays.sort(segmems);
         // System.out.println("Sorted segmems:");
         // for (int i = 0; i < segmems.length; i++) {
