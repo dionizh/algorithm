@@ -103,10 +103,8 @@ public class Board {
         if (this == y) return true;
         if (y == null) return false;
         if (getClass() != y.getClass()) return false;
-
         Board that = (Board) y;
-        if (this.n != that.n) return false;
-        return (Arrays.deepEquals(this.tiles, that.tiles));
+        return (this.n == that.n && Arrays.deepEquals(this.tiles, that.tiles));
     }
 
     private int[][] getCopy() {
