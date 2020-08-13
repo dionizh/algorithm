@@ -6,9 +6,14 @@
 
 import edu.princeton.cs.algs4.In;
 
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+
 public class Board {
     private final int[][] tiles;
     private final int n;
+    // public int name;
 
     // create a board from an n-by-n array of tiles,
     // where tiles[row][col] = tile at (row, col)
@@ -16,9 +21,12 @@ public class Board {
         // assume that the constructor receives an n-by-n array containing the
         // n2 integers between 0 and n2 − 1, where 0 represents the blank square.
         // You may also assume that 2 ≤ n < 128.
-        this.tiles = tiles.clone();
-        this.n = tiles.length;
-        // System.out.println("n=" + this.n + " tiles.length=" + tiles.length);
+        n = tiles.length;
+        this.tiles = new int[n][n];
+        // clone performs a shallow copy, you need the nested loop
+        for (int row = 0; row < n; row++) {
+            this.tiles[row] = tiles[row].clone();
+        }
     }
 
     // string representation of this board
@@ -76,18 +84,105 @@ public class Board {
 
     // is this board the goal board?
     public boolean isGoal() {
-        return false;
+        int i = 1;
+        int count = 0;
+        for (int row = 0; row < n; row++) {
+            for (int col = 0; col < n; col++) {
+                int tile = tiles[row][col];
+                if (tile != i && tile != 0) {
+                    return false;
+                }
+                i++;
+            }
+        }
+        return true;
     }
 
     // does this board equal y?
     public boolean equals(Object y) {
-        return false;
+        if (this == y) return true;
+        if (y == null) return false;
+        if (getClass() != y.getClass()) return false;
+
+        Board that = (Board) y;
+        if (this.n != that.n) return false;
+        return (Arrays.deepEquals(this.tiles, that.tiles));
+    }
+
+    private int[][] getCopy() {
+        int[][] copy = new int[n][n];
+        for (int row = 0; row < n; row++) {
+            copy[row] = tiles[row].clone();
+        }
+        return copy;
+    }
+
+    private Board swap(String direction, int row, int col) {
+        // System.out.println("SWAP " + direction + " " + row + " " + col);
+        int[][] copy = getCopy();
+        if (direction.equals("left")) {
+            int tmp = copy[row][col - 1];
+            copy[row][col - 1] = copy[row][col];
+            copy[row][col] = tmp;
+        }
+        else if (direction.equals("right")) {
+            int tmp = copy[row][col + 1];
+            copy[row][col + 1] = copy[row][col];
+            copy[row][col] = tmp;
+        }
+        else if (direction.equals("up")) {
+            int tmp = copy[row - 1][col];
+            copy[row - 1][col] = copy[row][col];
+            copy[row][col] = tmp;
+        }
+        else if (direction.equals("down")) {
+            int tmp = copy[row + 1][col];
+            copy[row + 1][col] = copy[row][col];
+            copy[row][col] = tmp;
+        }
+        return new Board(copy);
     }
 
     // all neighboring boards
-    // public Iterable<Board> neighbors() {
-    // }
-    //
+    // The neighbors() method returns an iterable containing the neighbors of the board.
+    // Depending on the location of the blank square, a board can have 2, 3, or 4 neighbors.
+    public Iterable<Board> neighbors() {
+        int swaps = 0;
+        Board[] boards = new Board[4]; // max 4 swaps
+        for (int row = 0; row < n; row++) {
+            for (int col = 0; col < n; col++) {
+                // first find where the empty tile is (0)
+                if (tiles[row][col] == 0) {
+                    if (col > 0) boards[swaps++] = swap("left", row, col);
+                    if (col < n - 1) boards[swaps++] = swap("right", row, col);
+                    if (row > 0) boards[swaps++] = swap("up", row, col);
+                    if (row < n - 1) boards[swaps++] = swap("down", row, col);
+                }
+            }
+        }
+        final int count = swaps;
+
+        return new Iterable<Board>() {
+            public Iterator<Board> iterator() {
+                return new Iterator<Board>() {
+                    private int iteratorPos = 0;
+
+                    public boolean hasNext() {
+                        return (iteratorPos < count);
+                    }
+
+                    public Board next() {
+                        if (iteratorPos >= count) {
+                            throw new NoSuchElementException("No more board!");
+                        }
+                        System.out.println("neighbour " + (iteratorPos + 1));
+                        return boards[iteratorPos++];
+                    }
+                };
+            }
+        };
+    }
+
     // // a board that is obtained by exchanging any pair of tiles
     // public Board twin() {
     // }
@@ -105,8 +200,18 @@ public class Board {
             }
         }
         Board b = new Board(tiles);
-        System.out.println(b.toString());
+        System.out.println(b);
         System.out.println("hamming=" + b.hamming());
         System.out.println("manhattan=" + b.manhattan());
+        System.out.println("isGoal=" + b.isGoal());
+
+        Iterable<Board> neighbours = b.neighbors();
+        Iterator<Board> it = neighbours.iterator();
+        while (it.hasNext()) {
+            System.out.println(it.next());
+        }
+
+        Board b2 = new Board(tiles);
+        System.out.println(b.equals(b2));
     }
 }
