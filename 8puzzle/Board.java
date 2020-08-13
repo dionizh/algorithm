@@ -5,10 +5,10 @@
  **************************************************************************** */
 
 import edu.princeton.cs.algs4.In;
+import edu.princeton.cs.algs4.Queue;
 
 import java.util.Arrays;
 import java.util.Iterator;
-import java.util.NoSuchElementException;
 
 public class Board {
     private final int[][] tiles;
@@ -147,40 +147,19 @@ public class Board {
     // The neighbors() method returns an iterable containing the neighbors of the board.
     // Depending on the location of the blank square, a board can have 2, 3, or 4 neighbors.
     public Iterable<Board> neighbors() {
-        int swaps = 0;
-        Board[] boards = new Board[4]; // max 4 swaps
+        Queue<Board> qboards = new Queue<>();
         for (int row = 0; row < n; row++) {
             for (int col = 0; col < n; col++) {
                 // first find where the empty tile is (0)
                 if (tiles[row][col] == 0) {
-                    if (col > 0) boards[swaps++] = swap("left", row, col);
-                    if (col < n - 1) boards[swaps++] = swap("right", row, col);
-                    if (row > 0) boards[swaps++] = swap("up", row, col);
-                    if (row < n - 1) boards[swaps++] = swap("down", row, col);
+                    if (col > 0) qboards.enqueue(swap("left", row, col));
+                    if (col < n - 1) qboards.enqueue(swap("right", row, col));
+                    if (row > 0) qboards.enqueue(swap("up", row, col));
+                    if (row < n - 1) qboards.enqueue(swap("down", row, col));
                 }
             }
         }
-        final int count = swaps;
-
-        return new Iterable<Board>() {
-            public Iterator<Board> iterator() {
-                return new Iterator<Board>() {
-                    private int iteratorPos = 0;
-
-                    public boolean hasNext() {
-                        return (iteratorPos < count);
-                    }
-
-                    public Board next() {
-                        if (iteratorPos >= count) {
-                            throw new NoSuchElementException("No more board!");
-                        }
-                        System.out.println("neighbour " + (iteratorPos + 1));
-                        return boards[iteratorPos++];
-                    }
-                };
-            }
-        };
+        return qboards;
     }
 
     // // a board that is obtained by exchanging any pair of tiles
@@ -208,6 +187,7 @@ public class Board {
         Iterable<Board> neighbours = b.neighbors();
         Iterator<Board> it = neighbours.iterator();
         while (it.hasNext()) {
+            System.out.println("Neighbour:");
             System.out.println(it.next());
         }
 
