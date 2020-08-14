@@ -6,14 +6,14 @@
 
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.Queue;
+import edu.princeton.cs.algs4.StdRandom;
 
 import java.util.Arrays;
-import java.util.Iterator;
 
 public class Board {
     private final int[][] tiles;
     private final int n;
-    // public int name;
+    private int zeroidx;
 
     // create a board from an n-by-n array of tiles,
     // where tiles[row][col] = tile at (row, col)
@@ -26,6 +26,11 @@ public class Board {
         // clone performs a shallow copy, you need the nested loop
         for (int row = 0; row < n; row++) {
             this.tiles[row] = tiles[row].clone();
+            for (int col = 0; col < n; col++) {
+                if (tiles[row][col] == 0) {
+                    zeroidx = (row * n) + col;
+                }
+            }
         }
     }
 
@@ -160,9 +165,29 @@ public class Board {
         return qboards;
     }
 
-    // // a board that is obtained by exchanging any pair of tiles
-    // public Board twin() {
-    // }
+    // a board that is obtained by exchanging any pair of tiles
+    public Board twin() {
+        // System.out.println("zeroidx=" + zeroidx);
+        int size = n * n;
+        int[] indexes = new int[size - 1];
+        int count = 0;
+        for (int i = 0; i < size; i++) {
+            if (i != zeroidx) {
+                indexes[count++] = i;
+            }
+        }
+        StdRandom.shuffle(indexes);
+        // just take 2 indexes from the shuffled list
+        int ran = indexes[indexes.length - 1];
+        int ran2 = indexes[0];
+
+        int[][] mytiles = getCopy();
+        int tmp = mytiles[ran / n][ran % n];
+        mytiles[ran / n][ran % n] = mytiles[ran2 / n][ran2 % n];
+        mytiles[ran2 / n][ran2 % n] = tmp;
+
+        return new Board(mytiles);
+    }
 
     // unit testing (not graded)
     public static void main(String[] args) {
@@ -182,14 +207,18 @@ public class Board {
         System.out.println("manhattan=" + b.manhattan());
         System.out.println("isGoal=" + b.isGoal());
 
-        Iterable<Board> neighbours = b.neighbors();
-        Iterator<Board> it = neighbours.iterator();
-        while (it.hasNext()) {
-            System.out.println("Neighbour:");
-            System.out.println(it.next());
-        }
+        // Iterable<Board> neighbours = b.neighbors();
+        // Iterator<Board> it = neighbours.iterator();
+        // while (it.hasNext()) {
+        //     System.out.println("Neighbour:");
+        //     System.out.println(it.next());
+        // }
 
-        Board b2 = new Board(tiles);
-        System.out.println(b.equals(b2));
+        // Board b2 = new Board(tiles);
+        // System.out.println(b.equals(b2));
+
+        Board t = b.twin();
+        System.out.println("TWIN:");
+        System.out.println(t);
     }
 }
