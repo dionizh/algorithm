@@ -11,10 +11,9 @@ import edu.princeton.cs.algs4.StdOut;
 
 public class Solver {
 
-    private int moves = 0;
-    private Queue<Board> solutions = new Queue<>();
-    private Board initial;
-    private boolean isSolveable = false;
+    private final int moves;
+    private final Queue<Board> solutions = new Queue<>();
+    private final boolean isSolveable;
 
     private class SearchNode implements Comparable<SearchNode> {
         Board board;
@@ -40,7 +39,6 @@ public class Solver {
     // find a solution to the initial board (using the A* algorithm)
     public Solver(Board initial) {
         if (initial == null) throw new IllegalArgumentException("initial Board is null");
-        this.initial = initial;
 
         MinPQ<SearchNode> pqinit = new MinPQ<>();
         MinPQ<SearchNode> pqtwin = new MinPQ<>();
@@ -55,9 +53,10 @@ public class Solver {
         boolean twinReachGoal = false;
 
         // int i = 0;
+        SearchNode mininit;
         while (true) {
             // System.out.println("i=" + i++);
-            SearchNode mininit = pqinit.delMin();
+            mininit = pqinit.delMin();
             SearchNode mintwin = pqtwin.delMin();
             // System.out.println(mintwin.board);
 
@@ -79,7 +78,6 @@ public class Solver {
 
                 SearchNode neigh = new SearchNode(b);
                 neigh.moves = mininit.moves + 1;
-                moves = mininit.moves + 1;
                 neigh.previous = mininit;
                 pqinit.insert(neigh);
             }
@@ -96,6 +94,7 @@ public class Solver {
             }
         }
 
+        moves = mininit.moves;
         // if the twin is the one reaching its goal, then initial board is unsolvable
         isSolveable = (initReachGoal && !twinReachGoal);
     }

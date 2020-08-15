@@ -11,9 +11,9 @@ import edu.princeton.cs.algs4.StdRandom;
 import java.util.Arrays;
 
 public class Board {
-    private final int[][] tiles;
     private final int n;
-    private int zeroidx;
+    private final int[][] tiles;
+    private final int[][] twintiles;
 
     // create a board from an n-by-n array of tiles,
     // where tiles[row][col] = tile at (row, col)
@@ -23,15 +23,39 @@ public class Board {
         // You may also assume that 2 ≤ n < 128.
         n = tiles.length;
         this.tiles = new int[n][n];
+        twintiles = new int[n][n];
+        int zeroidx = -1;
+
         // clone performs a shallow copy, you need the nested loop
         for (int row = 0; row < n; row++) {
             this.tiles[row] = tiles[row].clone();
+            twintiles[row] = tiles[row].clone();
+
             for (int col = 0; col < n; col++) {
                 if (tiles[row][col] == 0) {
                     zeroidx = (row * n) + col;
                 }
             }
         }
+
+        // generate the TWIN (init board that swaps any 2 tiles)
+        // System.out.println("zeroidx=" + zeroidx);
+        int size = n * n;
+        int[] indexes = new int[size - 1];
+        int count = 0;
+        for (int i = 0; i < size; i++) {
+            if (i != zeroidx) {
+                indexes[count++] = i;
+            }
+        }
+        StdRandom.shuffle(indexes);
+        // just take 2 indexes from the shuffled list
+        int ran = indexes[indexes.length - 1];
+        int ran2 = indexes[0];
+
+        int tmp = twintiles[ran / n][ran % n];
+        twintiles[ran / n][ran % n] = twintiles[ran2 / n][ran2 % n];
+        twintiles[ran2 / n][ran2 % n] = tmp;
     }
 
     // string representation of this board
@@ -167,26 +191,7 @@ public class Board {
 
     // a board that is obtained by exchanging any pair of tiles
     public Board twin() {
-        // System.out.println("zeroidx=" + zeroidx);
-        int size = n * n;
-        int[] indexes = new int[size - 1];
-        int count = 0;
-        for (int i = 0; i < size; i++) {
-            if (i != zeroidx) {
-                indexes[count++] = i;
-            }
-        }
-        StdRandom.shuffle(indexes);
-        // just take 2 indexes from the shuffled list
-        int ran = indexes[indexes.length - 1];
-        int ran2 = indexes[0];
-
-        int[][] mytiles = getCopy();
-        int tmp = mytiles[ran / n][ran % n];
-        mytiles[ran / n][ran % n] = mytiles[ran2 / n][ran2 % n];
-        mytiles[ran2 / n][ran2 % n] = tmp;
-
-        return new Board(mytiles);
+        return new Board(twintiles);
     }
 
     // unit testing (not graded)
