@@ -70,6 +70,7 @@ public class Board {
 
     // sum of Manhattan distances between tiles and goal
     public int manhattan() {
+        // calculate the manhattan just once
         int mdist = 0;
         for (int row = 0; row < n; row++) {
             for (int col = 0; col < n; col++) {
@@ -90,7 +91,6 @@ public class Board {
     // is this board the goal board?
     public boolean isGoal() {
         int i = 1;
-        int count = 0;
         for (int row = 0; row < n; row++) {
             for (int col = 0; col < n; col++) {
                 int tile = tiles[row][col];
