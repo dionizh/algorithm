@@ -13,7 +13,9 @@ import java.util.Arrays;
 public class Board {
     private final int n;
     private final int[][] tiles;
-    private final int[][] twintiles;
+    // for the twins
+    private final int ran1;
+    private final int ran2;
 
     // create a board from an n-by-n array of tiles,
     // where tiles[row][col] = tile at (row, col)
@@ -23,13 +25,11 @@ public class Board {
         // You may also assume that 2 ≤ n < 128.
         n = tiles.length;
         this.tiles = new int[n][n];
-        twintiles = new int[n][n];
         int zeroidx = -1;
 
         // clone performs a shallow copy, you need the nested loop
         for (int row = 0; row < n; row++) {
             this.tiles[row] = tiles[row].clone();
-            twintiles[row] = tiles[row].clone();
 
             for (int col = 0; col < n; col++) {
                 if (tiles[row][col] == 0) {
@@ -50,12 +50,8 @@ public class Board {
         }
         StdRandom.shuffle(indexes);
         // just take 2 indexes from the shuffled list
-        int ran = indexes[indexes.length - 1];
-        int ran2 = indexes[0];
-
-        int tmp = twintiles[ran / n][ran % n];
-        twintiles[ran / n][ran % n] = twintiles[ran2 / n][ran2 % n];
-        twintiles[ran2 / n][ran2 % n] = tmp;
+        ran1 = indexes[indexes.length - 1];
+        ran2 = indexes[0];
     }
 
     // string representation of this board
@@ -179,10 +175,10 @@ public class Board {
             for (int col = 0; col < n; col++) {
                 // first find where the empty tile is (0)
                 if (tiles[row][col] == 0) {
-                    if (col > 0) qboards.enqueue(swap("left", row, col));
-                    if (col < n - 1) qboards.enqueue(swap("right", row, col));
                     if (row > 0) qboards.enqueue(swap("up", row, col));
                     if (row < n - 1) qboards.enqueue(swap("down", row, col));
+                    if (col < n - 1) qboards.enqueue(swap("right", row, col));
+                    if (col > 0) qboards.enqueue(swap("left", row, col));
                 }
             }
         }
@@ -191,6 +187,13 @@ public class Board {
 
     // a board that is obtained by exchanging any pair of tiles
     public Board twin() {
+        int[][] twintiles = new int[n][n];
+        for (int row = 0; row < n; row++) {
+            twintiles[row] = tiles[row].clone();
+        }
+        int tmp = twintiles[ran1 / n][ran1 % n];
+        twintiles[ran1 / n][ran1 % n] = twintiles[ran2 / n][ran2 % n];
+        twintiles[ran2 / n][ran2 % n] = tmp;
         return new Board(twintiles);
     }
 
