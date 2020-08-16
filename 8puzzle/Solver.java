@@ -6,19 +6,17 @@
 
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.MinPQ;
-import edu.princeton.cs.algs4.Queue;
+import edu.princeton.cs.algs4.Stack;
 import edu.princeton.cs.algs4.StdOut;
 
 public class Solver {
-
-    private final int moves;
-    private final Queue<Board> solutions = new Queue<>();
+    private final Stack<Board> solutions = new Stack<>();
     private final boolean isSolveable;
 
     private class SearchNode implements Comparable<SearchNode> {
         Board board;
-        int moves = 0;
-        int manhattan;
+        int levels = 0;
+        int manhattan = 0;
         SearchNode previous = null;
 
         public SearchNode(Board board) {
@@ -30,8 +28,13 @@ public class Solver {
             if (that == null) {
                 throw new NullPointerException("compareTo SearchNode argument is null");
             }
-            if (this.manhattan + moves < that.manhattan + that.moves) return -1;
-            if (this.manhattan + moves > that.manhattan + that.moves) return 1;
+            int thispriority = this.manhattan + this.levels;
+            int thatpriority = that.manhattan + that.levels;
+            if (thispriority < thatpriority) return -1;
+            if (thispriority > thatpriority) return 1;
+            // if the same priority value
+            if (this.manhattan < that.manhattan) return -1;
+            if (this.manhattan > that.manhattan) return 1;
             return 0;
         }
     }
@@ -46,21 +49,17 @@ public class Solver {
         Board twin = initial.twin();
         pqinit.insert(new SearchNode(initial));
         pqtwin.insert(new SearchNode(twin));
-        // System.out.println("TWIN");
-        // System.out.println(twin);
 
         boolean initReachGoal = false;
         boolean twinReachGoal = false;
 
         // int i = 0;
-        SearchNode mininit;
+        SearchNode mininit = null;
+        SearchNode mintwin = null;
         while (true) {
-            // System.out.println("i=" + i++);
+            // System.out.println("\nSTEP " + i++);
             mininit = pqinit.delMin();
-            SearchNode mintwin = pqtwin.delMin();
-            // System.out.println(mintwin.board);
-
-            solutions.enqueue(mininit.board);
+            mintwin = pqtwin.delMin();
 
             if (mininit.board.isGoal()) {
                 initReachGoal = true;
@@ -77,7 +76,7 @@ public class Solver {
                 if (mininit.previous != null && b.equals(mininit.previous.board)) continue;
 
                 SearchNode neigh = new SearchNode(b);
-                neigh.moves = mininit.moves + 1;
+                neigh.levels = mininit.levels + 1;
                 neigh.previous = mininit;
                 pqinit.insert(neigh);
             }
@@ -88,13 +87,21 @@ public class Solver {
                 if (mintwin.previous != null && b.equals(mintwin.previous.board)) continue;
 
                 SearchNode neigh = new SearchNode(b);
-                neigh.moves = mintwin.moves + 1;
+                neigh.levels = mintwin.levels + 1;
                 neigh.previous = mintwin;
                 pqtwin.insert(neigh);
             }
         }
 
-        moves = mininit.moves;
+        // follow the previous pointers to compose the solution
+        if (initReachGoal) {
+            SearchNode sn = mininit;
+            while (sn != null) {
+                solutions.push(sn.board);
+                sn = sn.previous;
+            }
+        }
+
         // if the twin is the one reaching its goal, then initial board is unsolvable
         isSolveable = (initReachGoal && !twinReachGoal);
     }
@@ -106,11 +113,13 @@ public class Solver {
 
     // min number of moves to solve initial board; -1 if unsolvable
     public int moves() {
-        return moves;
+        if (solutions.size() >= 0) return solutions.size() - 1;
+        return -1;
     }
 
     // sequence of boards in a shortest solution; null if unsolvable
     public Iterable<Board> solution() {
+        if (solutions.size() == 0) return null;
         return solutions;
     }
 
@@ -131,12 +140,14 @@ public class Solver {
         boolean isSolveable = solver.isSolvable();
         System.out.println("isSolvable=" + isSolveable);
         // print solution to standard output
-        if (!isSolveable)
+        if (!isSolveable) {
             StdOut.println("No solution possible");
+            StdOut.println(solver.solution());
+        }
         else {
+            for (Board board : solver.solution())
+                StdOut.println(board);
             StdOut.println("Minimum number of moves = " + solver.moves());
-            // for (Board board : solver.solution())
-            //     StdOut.println(board);
         }
     }
 
