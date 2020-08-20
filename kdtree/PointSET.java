@@ -41,13 +41,9 @@ public class PointSET {
 
     // draw all points to standard draw
     public void draw() {
-        // draw the points
-        // StdDraw.setPenRadius(0.02);
-        // StdDraw.setPenColor(StdDraw.BOOK_LIGHT_BLUE);
         for (Point2D p : ps) {
             p.draw();
         }
-        // StdDraw.show();
     }
 
     // all points that are inside the rectangle (or on the boundary)
