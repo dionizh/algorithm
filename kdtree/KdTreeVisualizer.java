@@ -25,6 +25,7 @@ public class KdTreeVisualizer {
                 double y = StdDraw.mouseY();
                 StdOut.printf("%8.6f %8.6f\n", x, y);
                 Point2D p = new Point2D(x, y);
+                StdDraw.setPenRadius(0.01);
                 if (rect.contains(p)) {
                     StdOut.printf("%8.6f %8.6f\n", x, y);
                     kdtree.insert(p);

@@ -52,24 +52,35 @@ public class KdTree {
         Point2D parentp = n.p;
         if (p.equals(parentp)) return n;
 
+        double parentx = n.p.x();
+        double parenty = n.p.y();
+
         if (isVertical) {
-            if (p.x() < parentp.x()) {
+            if (p.x() < parentx) {
+                Node tmp = n.left;
                 n.left = insertNode(n.left, p, !isVertical);
-                n.left.rect = new RectHV(n.rect.xmin(), n.rect.ymin(), n.p.x(), n.rect.ymax());
+                if (n.left != tmp)
+                    n.left.rect = new RectHV(n.rect.xmin(), n.rect.ymin(), parentx, n.rect.ymax());
             }
             else {
+                Node tmp = n.right;
                 n.right = insertNode(n.right, p, !isVertical);
-                n.right.rect = new RectHV(n.p.x(), n.rect.ymin(), n.rect.xmax(), n.rect.ymax());
+                if (n.right != tmp)
+                    n.right.rect = new RectHV(parentx, n.rect.ymin(), n.rect.xmax(), n.rect.ymax());
             }
         }
         else { // horizontal
-            if (p.y() < parentp.y()) {
+            if (p.y() < parenty) {
+                Node tmp = n.left;
                 n.left = insertNode(n.left, p, !isVertical);
-                n.left.rect = new RectHV(n.rect.xmin(), n.rect.ymin(), n.rect.xmax(), n.p.y());
+                if (n.left != tmp)
+                    n.left.rect = new RectHV(n.rect.xmin(), n.rect.ymin(), n.rect.xmax(), parenty);
             }
             else {
+                Node tmp = n.right;
                 n.right = insertNode(n.right, p, !isVertical);
-                n.right.rect = new RectHV(n.rect.xmin(), n.p.y(), n.rect.xmax(), n.rect.ymax());
+                if (n.right != tmp)
+                    n.right.rect = new RectHV(n.rect.xmin(), parenty, n.rect.xmax(), n.rect.ymax());
             }
         }
         return n;
@@ -121,7 +132,7 @@ public class KdTree {
             drawLine(p1, p2, isVertical);
         }
 
-        StdDraw.setPenRadius(0.01);
+        // StdDraw.setPenRadius(0.01);
         StdDraw.setPenColor(StdDraw.BLACK);
         n.p.draw();
         drawNode(n.left, !isVertical);
@@ -129,7 +140,7 @@ public class KdTree {
     }
 
     private void drawLine(Point2D p1, Point2D p2, boolean isVertical) {
-        StdDraw.setPenRadius(0.005);
+        // StdDraw.setPenRadius(0.005);
         if (isVertical) StdDraw.setPenColor(StdDraw.RED);
         else StdDraw.setPenColor(StdDraw.BLUE);
         p1.drawTo(p2);
@@ -158,9 +169,11 @@ public class KdTree {
 
     private void nearestSearch(Point2D p, Node n) {
         if (n == null) return;
+        // System.out.println("dist to rect " + n.p.toString() + ":" + n.rect.distanceSquaredTo(p));
         if (mindist < n.rect.distanceSquaredTo(p)) return; // no need to explore the node further
 
-        // System.out.println("visited " + n.p.toString());
+        // System.out.println("***** CHECK NODE " + n.p.toString() + " mindist:" + mindist);
+        // System.out.println("dist to pnt " + n.p.toString());
         double dist = n.p.distanceSquaredTo(p);
         if (dist < mindist) {
             mindist = dist;
@@ -169,14 +182,33 @@ public class KdTree {
 
         // if there are 2 subtrees to go through
         if (n.left != null && n.right != null) {
+            // System.out.println(
+            //         "left rect contains " + p.toString() + ":" + n.left.rect.contains(p));
+            // System.out.println(
+            //         "right rect contains " + p.toString() + ":" + n.right.rect.contains(p));
             // select the one on the same side first
             if (n.left.rect.contains(p)) {
                 nearestSearch(p, n.left);
                 nearestSearch(p, n.right);
             }
-            else {
+            else if (n.right.rect.contains(p)) {
                 nearestSearch(p, n.right);
                 nearestSearch(p, n.left);
+            }
+            else {
+                // if neither contains the point, check the distance to the rect
+                // and check the closest one first
+                double leftrectdist = n.left.rect.distanceSquaredTo(p);
+                double rightrectdist = n.right.rect.distanceSquaredTo(p);
+
+                if (leftrectdist < rightrectdist) {
+                    nearestSearch(p, n.left);
+                    nearestSearch(p, n.right);
+                }
+                else {
+                    nearestSearch(p, n.right);
+                    nearestSearch(p, n.left);
+                }
             }
         }
         else {
@@ -206,7 +238,7 @@ public class KdTree {
             kdtree.insert(p);
         }
 
-        Point2D p = new Point2D(0.81, 0.30);
+        Point2D p = new Point2D(0.73, 0.43);
         System.out.println("nearest " + kdtree.nearest(p));
 
         System.out.println("size: " + kdtree.size());
