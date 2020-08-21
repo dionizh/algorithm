@@ -10,7 +10,7 @@ import edu.princeton.cs.algs4.RectHV;
 import edu.princeton.cs.algs4.SET;
 
 public class PointSET {
-    private SET<Point2D> ps;
+    private final SET<Point2D> ps;
 
     // construct an empty set of points
     public PointSET() {
@@ -62,9 +62,8 @@ public class PointSET {
     // a nearest neighbor in the set to point p; null if the set is empty
     public Point2D nearest(Point2D p) {
         if (p == null) throw new IllegalArgumentException("nearest: Point2D is null");
-        double mindist = Double.MAX_VALUE;
+        double mindist = Double.POSITIVE_INFINITY;
         Point2D nearest = null;
-        Queue<Point2D> q = new Queue<>();
         for (Point2D itp : ps) {
             double sqdist = p.distanceSquaredTo(itp);
             if (sqdist < mindist) {
@@ -75,7 +74,7 @@ public class PointSET {
         return nearest;
     }
 
-    public static void main(String[] args) {
-
-    }
+    // public static void main(String[] args) {
+    //
+    // }
 }

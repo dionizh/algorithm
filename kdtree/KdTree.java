@@ -4,6 +4,7 @@
  *  Description:
  **************************************************************************** */
 
+import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.Point2D;
 import edu.princeton.cs.algs4.Queue;
 import edu.princeton.cs.algs4.RectHV;
@@ -17,12 +18,10 @@ public class KdTree {
     private double mindist;
     private Point2D nearest;
 
-    private class Node {
+    private static class Node {
         Point2D p;
         Node left = null;
         Node right = null;
-        Node parent = null;
-        boolean isVertical = true; // either vertical or horizontal
         RectHV rect;
 
         public Node(Point2D p) {
@@ -45,7 +44,10 @@ public class KdTree {
     }
 
     private Node insertNode(Node n, Point2D p, boolean isVertical) {
-        if (n == null) return new Node(p);
+        if (n == null) {
+            size++;
+            return new Node(p);
+        }
 
         Point2D parentp = n.p;
         if (p.equals(parentp)) return n;
@@ -78,16 +80,31 @@ public class KdTree {
         if (p == null) throw new IllegalArgumentException("insert: Point2D is null");
         if (root == null) {
             root = new Node(p);
+            size++;
             root.rect = new RectHV(0.0, 0.0, 1.0, 1.0); // the whole unit
         }
         else root = insertNode(root, p, true);
     }
 
+    private boolean containSearch(Node n, Point2D qp, boolean isVertical) {
+        if (n == null) return false;
+        // System.out.println("check " + n.p.toString() + ": " + n.p.equals(qp));
+        if (n.p.equals(qp)) return true;
+
+        if (isVertical) {
+            if (qp.x() < n.p.x()) return containSearch(n.left, qp, !isVertical);
+            else return containSearch(n.right, qp, !isVertical);
+        }
+        else {
+            if (qp.y() < n.p.y()) return containSearch(n.left, qp, !isVertical);
+            else return containSearch(n.right, qp, !isVertical);
+        }
+    }
+
     // does the set contain point p?
     public boolean contains(Point2D p) {
         if (p == null) throw new IllegalArgumentException("contains: Point2D is null");
-        // return ps.contains(p);
-        return false;
+        return containSearch(root, p, true);
     }
 
     private void drawNode(Node n, boolean isVertical) {
@@ -143,6 +160,7 @@ public class KdTree {
         if (n == null) return;
         if (mindist < n.rect.distanceSquaredTo(p)) return; // no need to explore the node further
 
+        // System.out.println("visited " + n.p.toString());
         double dist = n.p.distanceSquaredTo(p);
         if (dist < mindist) {
             mindist = dist;
@@ -171,12 +189,33 @@ public class KdTree {
     // a nearest neighbor in the set to point p; null if the set is empty
     public Point2D nearest(Point2D p) {
         if (p == null) throw new IllegalArgumentException("nearest: Point2D is null");
-        mindist = Double.MAX_VALUE;
+        mindist = Double.POSITIVE_INFINITY;
         nearestSearch(p, root);
         return nearest;
     }
 
     public static void main(String[] args) {
+        // initialize the two data structures with point from file
+        String filename = args[0];
+        In in = new In(filename);
+        KdTree kdtree = new KdTree();
+        while (!in.isEmpty()) {
+            double x = in.readDouble();
+            double y = in.readDouble();
+            Point2D p = new Point2D(x, y);
+            kdtree.insert(p);
+        }
 
+        Point2D p = new Point2D(0.81, 0.30);
+        System.out.println("nearest " + kdtree.nearest(p));
+
+        System.out.println("size: " + kdtree.size());
+
+        // StdDraw.enableDoubleBuffering();
+        // while (true) {
+        //     kdtree.draw();
+        //     StdDraw.show();
+        //     StdDraw.pause(40);
+        // }
     }
 }
