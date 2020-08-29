@@ -20,7 +20,7 @@ public class SAP {
     // constructor takes a digraph (not necessarily a DAG)
     public SAP(Digraph G) {
         if (G == null) throw new IllegalArgumentException("Digraph is null");
-        dg = G;
+        dg = new Digraph(G);
     }
 
     // bfs search that checks at every step whether the vertex
@@ -92,6 +92,7 @@ public class SAP {
     }
 
     private DeluxeBFS getBFS(int v) {
+        validateVertex(v);
         if (!bfsmap.containsKey(Integer.toString(v))) {
             DeluxeBFS newbfs = new DeluxeBFS(dg, v);
             bfsmap.put(Integer.toString(v), newbfs);
@@ -101,8 +102,11 @@ public class SAP {
     }
 
     private DeluxeBFS getBFS(Iterable<Integer> v) {
+        validateVertices(v);
         StringBuilder sb = new StringBuilder();
-        for (int vert : v) sb.append(Integer.toString(vert) + "-");
+        for (int vert : v) {
+            sb.append(Integer.toString(vert) + "-");
+        }
         String key = sb.toString();
         if (!bfsmap.containsKey(key)) {
             DeluxeBFS newbfs = new DeluxeBFS(dg, v);
@@ -110,6 +114,27 @@ public class SAP {
             return newbfs;
         }
         return bfsmap.get(key);
+    }
+
+    // throw an IllegalArgumentException unless {@code 0 <= v < V}
+    private void validateVertex(int v) {
+        int length = dg.V();
+        if (v < 0 || v >= length)
+            throw new IllegalArgumentException(
+                    "vertex " + v + " is not between 0 and " + (length - 1));
+    }
+
+    // throw an IllegalArgumentException unless {@code 0 <= v < V}
+    private void validateVertices(Iterable<Integer> vertices) {
+        if (vertices == null) {
+            throw new IllegalArgumentException("argument is null");
+        }
+        for (Integer v : vertices) {
+            if (v == null) {
+                throw new IllegalArgumentException("vertex is null");
+            }
+            validateVertex(v);
+        }
     }
 
     // length of shortest ancestral path between v and w; -1 if no such path
@@ -125,14 +150,15 @@ public class SAP {
 
     // a common ancestor of v and w that participates in a shortest ancestral path; -1 if no such path
     public int ancestor(int v, int w) {
+        validateVertex(v);
+        validateVertex(w);
+
         DeluxeBFS bw = getBFS(w);
-        // bw.printPaths(v);
         return bfsAncestor(v, bw);
     }
 
     // length of shortest ancestral path between any vertex in v and any vertex in w; -1 if no such path
     public int length(Iterable<Integer> v, Iterable<Integer> w) {
-        if (v == null || w == null) throw new IllegalArgumentException("v/w is null");
         DeluxeBFS bv = getBFS(v);
         DeluxeBFS bw = getBFS(w);
         int anc = ancestor(v, w);
@@ -142,7 +168,8 @@ public class SAP {
 
     // a common ancestor that participates in shortest ancestral path; -1 if no such path
     public int ancestor(Iterable<Integer> v, Iterable<Integer> w) {
-        if (v == null || w == null) throw new IllegalArgumentException("v/w is null");
+        validateVertices(v);
+        validateVertices(w);
 
         DeluxeBFS bw = getBFS(w);
         return bfsAncestor(v, bw);
@@ -154,23 +181,27 @@ public class SAP {
         Digraph dg = new Digraph(in);
         SAP sap = new SAP(dg);
 
-        int v = Integer.parseInt(args[1]);
-        int w = Integer.parseInt(args[2]);
-        DeluxeBFS b = new DeluxeBFS(dg, v);
-        b.printPaths(v);
-        DeluxeBFS b2 = new DeluxeBFS(dg, w);
-        b2.printPaths(w);
-        StdOut.println("length=" + sap.length(v, w) + " ancestor=" + sap.ancestor(v, w));
+        // int v = Integer.parseInt(args[1]);
+        // int w = Integer.parseInt(args[2]);
+        // DeluxeBFS b = new DeluxeBFS(dg, v);
+        // b.printPaths(v);
+        // DeluxeBFS b2 = new DeluxeBFS(dg, w);
+        // b2.printPaths(w);
 
-        // Queue<Integer> sources = new Queue<>();
-        // sources.enqueue(13);
-        // sources.enqueue(23);
-        // sources.enqueue(24);
-        // Queue<Integer> ends = new Queue<>();
-        // ends.enqueue(6);
-        // ends.enqueue(16);
-        // ends.enqueue(17);
-        // StdOut.println(
-        //         "length=" + sap.length(sources, ends) + " ancestor=" + sap.ancestor(sources, ends));
+        Queue<Integer> v = new Queue<>();
+        v.enqueue(0);
+        v.enqueue(null);
+        v.enqueue(9);
+        v.enqueue(12);
+        v.enqueue(-1);
+        Queue<Integer> w = new Queue<>();
+        w.enqueue(-1);
+        w.enqueue(16);
+        w.enqueue(17);
+
+
+        StdOut.println("length=" + sap.length(v, w));
+        StdOut.println("ancestor=" + sap.ancestor(v, w));
+
     }
 }
