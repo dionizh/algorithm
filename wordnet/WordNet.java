@@ -7,6 +7,7 @@
 import edu.princeton.cs.algs4.Digraph;
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.Queue;
+import edu.princeton.cs.algs4.Topological;
 
 import java.util.TreeMap;
 
@@ -54,6 +55,10 @@ public class WordNet {
         // Now read hypernims and build Digraph
         Digraph dg = new Digraph(this.synsets.length);
 
+        // check cycle
+        Topological topo = new Topological(dg);
+        if (!topo.hasOrder()) throw new IllegalArgumentException("NOT a DAG!");
+
         in = new In(hypernyms);
         while (!in.isEmpty()) {
             line = in.readLine();
@@ -80,12 +85,16 @@ public class WordNet {
 
     // distance between nounA and nounB (defined below)
     public int distance(String nounA, String nounB) {
+        if (!isNoun(nounA) || !isNoun(nounB))
+            throw new IllegalArgumentException("distance: noun A or B is illegal");
         return sap.length(tm.get(nounA), tm.get(nounB));
     }
 
     // a synset (second field of synsets.txt) that is the common ancestor of nounA and nounB
     // in a shortest ancestral path (defined below)
     public String sap(String nounA, String nounB) {
+        if (!isNoun(nounA) || !isNoun(nounB))
+            throw new IllegalArgumentException("distance: noun A or B is illegal");
         int anc = sap.ancestor(tm.get(nounA), tm.get(nounB));
         if (anc != -1) return synsets[anc];
         return null;
