@@ -6,24 +6,18 @@
 
 import edu.princeton.cs.algs4.Digraph;
 import edu.princeton.cs.algs4.In;
+import edu.princeton.cs.algs4.Queue;
 
-import java.util.ArrayList;
+import java.util.TreeMap;
 
 public class WordNet {
 
-    // stores the nouns
-    private ArrayList<SSNode> ssa = new ArrayList<>();
-    private Digraph dg;
+    // stores nouns as keys with id as values
+    private final TreeMap<String, Queue<Integer>> tm = new TreeMap<>();
+    // stores the nouns with id as key
+    private final String[] synsets;
 
-    private static class SSNode {
-        int id;
-        String[] nouns;
-
-        public SSNode(int id, String[] nouns) {
-            this.id = id;
-            this.nouns = nouns;
-        }
-    }
+    private final SAP sap;
 
     // constructor takes the name of the two input files
     public WordNet(String synsets, String hypernyms) {
@@ -33,31 +27,34 @@ public class WordNet {
         In in = new In(synsets);
         String line;
 
-        int j = 0;
+        Queue<String> ssq = new Queue<>();
         while (!in.isEmpty()) {
             line = in.readLine();
             String[] fields = line.split(",");
             int idx = Integer.parseInt(fields[0]);
+            ssq.enqueue(fields[1]);
+
             String[] nouns = fields[1].split(" ");
-
-            SSNode node = new SSNode(idx, nouns);
-            ssa.add(node);
-
-            j++;
-            // if (j > 20) break;
+            for (int i = 0; i < nouns.length; i++) {
+                String noun = nouns[i];
+                if (tm.containsKey(noun)) tm.get(noun).enqueue(idx);
+                else {
+                    Queue<Integer> q = new Queue<>();
+                    q.enqueue(idx);
+                    tm.put(noun, q);
+                }
+            }
         }
 
-        for (int i = 0; i < ssa.size(); i++) {
-            SSNode n = ssa.get(i);
-            if (n.id != i) System.out.println("ERROR!!"); // sanity check
-            // System.out.println(i + ":" + Arrays.toString(n.nouns));
+        this.synsets = new String[ssq.size()];
+        for (int i = 0; i < this.synsets.length; i++) {
+            this.synsets[i] = ssq.dequeue();
         }
 
         // Now read hypernims and build Digraph
-        dg = new Digraph(ssa.size());
+        Digraph dg = new Digraph(this.synsets.length);
 
         in = new In(hypernyms);
-        j = 0;
         while (!in.isEmpty()) {
             line = in.readLine();
             String[] nums = line.split(",");
@@ -65,38 +62,41 @@ public class WordNet {
             for (int i = 1; i < nums.length; i++) {
                 int w = Integer.parseInt(nums[i]);
                 dg.addEdge(v, w);
-                // System.out.println("add edge " + v + "->" + w);
             }
-            j++;
-            // if (j > 35) break;
         }
+
+        sap = new SAP(dg);
     }
 
     // returns all WordNet nouns
     public Iterable<String> nouns() {
-        return null;
+        return tm.keySet();
     }
 
     // is the word a WordNet noun?
     public boolean isNoun(String word) {
-        return false;
+        return tm.containsKey(word);
     }
 
     // distance between nounA and nounB (defined below)
     public int distance(String nounA, String nounB) {
-        return 0;
+        return sap.length(tm.get(nounA), tm.get(nounB));
     }
 
     // a synset (second field of synsets.txt) that is the common ancestor of nounA and nounB
     // in a shortest ancestral path (defined below)
     public String sap(String nounA, String nounB) {
-        return "";
+        int anc = sap.ancestor(tm.get(nounA), tm.get(nounB));
+        if (anc != -1) return synsets[anc];
+        return null;
     }
 
     // do unit testing of this class
     public static void main(String[] args) {
-        String synsets = args[0];
-        String hypernyms = args[1];
-        WordNet wn = new WordNet(synsets, hypernyms);
+        // String synsets = args[0];
+        // String hypernyms = args[1];
+        // WordNet wn = new WordNet(synsets, hypernyms);
+        // wn.nouns();
+        // for (String noun : wn.nouns()) StdOut.println(noun);
     }
 }

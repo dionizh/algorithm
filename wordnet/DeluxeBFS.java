@@ -59,11 +59,10 @@ import edu.princeton.cs.algs4.StdOut;
  */
 public class DeluxeBFS {
     private static final int INFINITY = Integer.MAX_VALUE;
-    private Digraph G;
+    private final Digraph G;
     private boolean[] marked;  // marked[v] = is there an s->v path?
     private int[] edgeTo;      // edgeTo[v] = last edge on shortest s->v path
     private int[] distTo;      // distTo[v] = length of shortest s->v path
-    private int s;
 
     /**
      * Computes the shortest path from {@code s} and every other vertex in graph {@code G}.
@@ -80,7 +79,6 @@ public class DeluxeBFS {
             distTo[v] = INFINITY;
         validateVertex(s);
         this.G = G;
-        this.s = s;
         bfs(s);
     }
 
@@ -101,10 +99,11 @@ public class DeluxeBFS {
         for (int v = 0; v < G.V(); v++)
             distTo[v] = INFINITY;
         validateVertices(sources);
+        this.G = G;
         bfs(sources);
     }
 
-    public void printPaths() {
+    public void printPaths(int s) {
         for (int w = 0; w < G.V(); w++) {
             if (hasPathTo(w)) {
                 StdOut.printf("%d to %d (%d):  ", s, w, distTo(w));
@@ -207,9 +206,10 @@ public class DeluxeBFS {
 
     // throw an IllegalArgumentException unless {@code 0 <= v < V}
     private void validateVertex(int v) {
-        int V = marked.length;
-        if (v < 0 || v >= V)
-            throw new IllegalArgumentException("vertex " + v + " is not between 0 and " + (V - 1));
+        int length = marked.length;
+        if (v < 0 || v >= length)
+            throw new IllegalArgumentException(
+                    "vertex " + v + " is not between 0 and " + (length - 1));
     }
 
     // throw an IllegalArgumentException unless {@code 0 <= v < V}
