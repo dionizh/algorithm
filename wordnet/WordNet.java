@@ -55,10 +55,6 @@ public class WordNet {
         // Now read hypernims and build Digraph
         Digraph dg = new Digraph(this.synsets.length);
 
-        // check cycle
-        Topological topo = new Topological(dg);
-        if (!topo.hasOrder()) throw new IllegalArgumentException("NOT a DAG!");
-
         in = new In(hypernyms);
         while (!in.isEmpty()) {
             line = in.readLine();
@@ -70,6 +66,15 @@ public class WordNet {
             }
         }
 
+        // check cycle
+        Topological topo = new Topological(dg);
+        if (!topo.hasOrder()) throw new IllegalArgumentException("NOT a DAG!");
+        int roots = 0;
+        for (int i = 0; i < dg.V(); i++) {
+            if (dg.outdegree(i) == 0) roots++;
+        }
+        if (roots > 1) throw new IllegalArgumentException("Not a rooted DAG!");
+
         sap = new SAP(dg);
     }
 
@@ -80,6 +85,7 @@ public class WordNet {
 
     // is the word a WordNet noun?
     public boolean isNoun(String word) {
+        if (word == null) throw new IllegalArgumentException("word is null");
         return tm.containsKey(word);
     }
 
@@ -102,10 +108,10 @@ public class WordNet {
 
     // do unit testing of this class
     public static void main(String[] args) {
-        // String synsets = args[0];
-        // String hypernyms = args[1];
-        // WordNet wn = new WordNet(synsets, hypernyms);
-        // wn.nouns();
+        String synsets = args[0];
+        String hypernyms = args[1];
+        WordNet wn = new WordNet(synsets, hypernyms);
         // for (String noun : wn.nouns()) StdOut.println(noun);
+        wn.sap("a", null);
     }
 }
