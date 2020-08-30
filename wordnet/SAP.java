@@ -8,6 +8,7 @@ import edu.princeton.cs.algs4.Digraph;
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.Queue;
 import edu.princeton.cs.algs4.StdOut;
+import edu.princeton.cs.algs4.StdRandom;
 
 import java.util.HashMap;
 
@@ -16,6 +17,8 @@ public class SAP {
     private final Digraph dg;
     // private DeluxeBFS[] bfsST;
     private final HashMap<String, DeluxeBFS> bfsmap = new HashMap<>();
+    private final int MAXHASH = 1000;
+    private Queue<String> hashorder = new Queue<>();
 
     // constructor takes a digraph (not necessarily a DAG)
     public SAP(Digraph G) {
@@ -95,7 +98,12 @@ public class SAP {
         validateVertex(v);
         if (!bfsmap.containsKey(Integer.toString(v))) {
             DeluxeBFS newbfs = new DeluxeBFS(dg, v);
-            bfsmap.put(Integer.toString(v), newbfs);
+            String key = Integer.toString(v);
+            bfsmap.put(key, newbfs);
+            hashorder.enqueue(key);
+            if (bfsmap.size() > MAXHASH) {
+                bfsmap.remove(hashorder.dequeue()); // remove the oldest
+            }
             return newbfs;
         }
         return bfsmap.get(Integer.toString(v));
@@ -103,6 +111,7 @@ public class SAP {
 
     private DeluxeBFS getBFS(Iterable<Integer> v) {
         validateVertices(v);
+
         StringBuilder sb = new StringBuilder();
         for (int vert : v) {
             sb.append(Integer.toString(vert) + "-");
@@ -111,6 +120,10 @@ public class SAP {
         if (!bfsmap.containsKey(key)) {
             DeluxeBFS newbfs = new DeluxeBFS(dg, v);
             bfsmap.put(key, newbfs);
+            hashorder.enqueue(key);
+            if (bfsmap.size() > MAXHASH) {
+                bfsmap.remove(hashorder.dequeue()); // remove the oldest
+            }
             return newbfs;
         }
         return bfsmap.get(key);
@@ -181,6 +194,25 @@ public class SAP {
         Digraph dg = new Digraph(in);
         SAP sap = new SAP(dg);
 
+        int v, w;
+        for (int i = 0; i < 10000; i++) {
+            v = StdRandom.uniform(0, dg.V());
+            w = StdRandom.uniform(0, dg.V());
+            StdOut.println("v=" + v + " w=" + w);
+            StdOut.println("length=" + sap.length(v, w));
+            StdOut.println("ancestor=" + sap.ancestor(v, w));
+        }
+
+        // Queue<Integer> v = new Queue<>();
+        // Queue<Integer> w = new Queue<>();
+        // for (int i = 0; i < 1000; i++) {
+        //     v.enqueue(StdRandom.uniform(0, dg.V()));
+        //     w.enqueue(StdRandom.uniform(0, dg.V()));
+        // }
+        // StdOut.println("v=" + v + " w=" + w);
+        // StdOut.println("length=" + sap.length(v, w));
+        // StdOut.println("ancestor=" + sap.ancestor(v, w));
+
         // int v = Integer.parseInt(args[1]);
         // int w = Integer.parseInt(args[2]);
         // DeluxeBFS b = new DeluxeBFS(dg, v);
@@ -188,20 +220,16 @@ public class SAP {
         // DeluxeBFS b2 = new DeluxeBFS(dg, w);
         // b2.printPaths(w);
 
-        Queue<Integer> v = new Queue<>();
-        v.enqueue(0);
-        v.enqueue(null);
-        v.enqueue(9);
-        v.enqueue(12);
-        v.enqueue(-1);
-        Queue<Integer> w = new Queue<>();
-        w.enqueue(-1);
-        w.enqueue(16);
-        w.enqueue(17);
-
-
-        StdOut.println("length=" + sap.length(v, w));
-        StdOut.println("ancestor=" + sap.ancestor(v, w));
+        // Queue<Integer> v = new Queue<>();
+        // v.enqueue(0);
+        // v.enqueue(null);
+        // v.enqueue(9);
+        // v.enqueue(12);
+        // v.enqueue(-1);
+        // Queue<Integer> w = new Queue<>();
+        // w.enqueue(-1);
+        // w.enqueue(16);
+        // w.enqueue(17);
 
     }
 }

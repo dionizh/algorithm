@@ -72,8 +72,9 @@ public class WordNet {
         int roots = 0;
         for (int i = 0; i < dg.V(); i++) {
             if (dg.outdegree(i) == 0) roots++;
+            if (roots > 1)
+                if (roots > 1) throw new IllegalArgumentException("Not a rooted DAG!");
         }
-        if (roots > 1) throw new IllegalArgumentException("Not a rooted DAG!");
 
         sap = new SAP(dg);
     }
