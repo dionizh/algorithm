@@ -14,11 +14,11 @@ import java.util.HashMap;
 
 public class SAP {
 
+    private static final int MAXHASH = 1000;
+
     private final Digraph dg;
-    // private DeluxeBFS[] bfsST;
     private final HashMap<String, DeluxeBFS> bfsmap = new HashMap<>();
-    private final int MAXHASH = 1000;
-    private Queue<String> hashorder = new Queue<>();
+    private final Queue<String> hashorder = new Queue<>();
 
     // constructor takes a digraph (not necessarily a DAG)
     public SAP(Digraph G) {
@@ -195,7 +195,7 @@ public class SAP {
         SAP sap = new SAP(dg);
 
         int v, w;
-        for (int i = 0; i < 10000; i++) {
+        for (int i = 0; i < 10; i++) {
             v = StdRandom.uniform(0, dg.V());
             w = StdRandom.uniform(0, dg.V());
             StdOut.println("v=" + v + " w=" + w);
