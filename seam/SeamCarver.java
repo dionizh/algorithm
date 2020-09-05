@@ -6,8 +6,6 @@
 
 import edu.princeton.cs.algs4.Picture;
 
-import java.awt.Color;
-
 public class SeamCarver {
 
     private Picture pic;
@@ -32,11 +30,16 @@ public class SeamCarver {
         return pic.height();
     }
 
-    private double colgradient(Color cone, Color ctwo) {
-        int Rdiff = cone.getRed() - ctwo.getRed();
-        int Gdiff = cone.getGreen() - ctwo.getGreen();
-        int Bdiff = cone.getBlue() - ctwo.getBlue();
-
+    private double colgradient(int rgb1, int rgb2) {
+        int r1 = (rgb1 >> 16) & 0xFF;
+        int g1 = (rgb1 >> 8) & 0xFF;
+        int b1 = (rgb1 >> 0) & 0xFF;
+        int r2 = (rgb2 >> 16) & 0xFF;
+        int g2 = (rgb2 >> 8) & 0xFF;
+        int b2 = (rgb2 >> 0) & 0xFF;
+        int Rdiff = r1 - r2;
+        int Gdiff = g1 - g2;
+        int Bdiff = b1 - b2;
         double Rsq = 0;
         double Gsq = 0;
         double Bsq = 0;
@@ -47,11 +50,11 @@ public class SeamCarver {
     }
 
     private double xgradient(int x, int y) {
-        return colgradient(pic.get(x - 1, y), pic.get(x + 1, y));
+        return colgradient(pic.getRGB(x - 1, y), pic.getRGB(x + 1, y));
     }
 
     private double ygradient(int x, int y) {
-        return colgradient(pic.get(x, y - 1), pic.get(x, y + 1));
+        return colgradient(pic.getRGB(x, y - 1), pic.getRGB(x, y + 1));
     }
 
     // energy of pixel at column x and row y
