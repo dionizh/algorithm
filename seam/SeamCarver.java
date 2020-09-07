@@ -6,31 +6,13 @@
 
 import edu.princeton.cs.algs4.IndexMinPQ;
 import edu.princeton.cs.algs4.Picture;
-import edu.princeton.cs.algs4.Stack;
 import edu.princeton.cs.algs4.StdOut;
 
 public class SeamCarver {
 
     private Picture pic;
+    private boolean transpose = false;
     private double[][] ea;
-
-    Stack<Integer> reversePost;
-    boolean[][] marked;
-
-    double[][] distTo;
-    int[][] edgeTo;
-
-    IndexMinPQ<Double> mpq;
-
-    // private class Pixel {
-    //     int x;
-    //     int y;
-    //
-    //     public Pixel(int x, int y) {
-    //         this.x = x;
-    //         this.y = y;
-    //     }
-    // }
 
     // create a seam carver object based on the given picture
     public SeamCarver(Picture picture) {
@@ -50,11 +32,13 @@ public class SeamCarver {
 
     // width of current picture
     public int width() {
+        if (transpose) return pic.height();
         return pic.width();
     }
 
     // height of current picture
     public int height() {
+        if (transpose) return pic.width();
         return pic.height();
     }
 
@@ -93,55 +77,25 @@ public class SeamCarver {
 
     // energy of pixel at column x and row y
     public double energy(int x, int y) {
-        if (x < 0 || x > width() - 1 || y < 0 || y > height())
-            throw new IllegalArgumentException("x or y is out of bound");
+        if (x < 0 || y < 0 || x > width() - 1 || y > height() - 1)
+            throw new IllegalArgumentException("x or y is out of bound x=" + x + " y=" + y);
+
+        if (transpose) {
+            int tmpX = x;
+            x = y;
+            y = tmpX;
+        }
+
         return ea[x][y];
     }
 
-    // sequence of indices for horizontal seam
-    public int[] findHorizontalSeam() {
-        return new int[1];
-    }
-
-    private int v(int x, int y) {
-        return y * width() + x;
-    }
-
-    private void dfs(int x, int y) {
-        // StdOut.println("mark " + x + " and " + y);
-        marked[x][y] = true;
-        // check down left, middle and right
-        if (y < height() - 1) {
-            if (x > 0 && !marked[x - 1][y + 1]) dfs(x - 1, y + 1);
-            if (!marked[x][y + 1]) dfs(x, y + 1);
-            if (x < width() - 1 && !marked[x + 1][y + 1]) dfs(x + 1, y + 1);
-        }
-        int v = y * width() + x;
-        reversePost.push(v);
-    }
-
-    private void topologicalOrder() {
-        reversePost = new Stack<Integer>();
-        marked = new boolean[width()][height()];
-        for (int y = 0; y < height(); y++) {
-            for (int x = 0; x < width(); x++) {
-                if (!marked[x][y]) dfs(x, y);
-            }
-        }
-        // while (!reversePost.isEmpty()) {
-        //     int v = reversePost.pop();
-        //     StdOut.println("v=" + v + " x=" + (v / width()) + " y=" + (v % width()));
-        // }
-    }
-
-    private void relax(int x, int y) {
-        if (y >= height() - 1) return;
+    private void relax(int x, int y, double[][] distTo, int[][] edgeTo) {
         // StdOut.println("relax " + x + ", " + y);
         // down left
         double dist;
         if (x > 0) {
             // relax(x - 1, y + 1);
-            dist = distTo[x][y] + ea[x - 1][y + 1];
+            dist = distTo[x][y] + energy(x - 1, y + 1);
             // StdOut.println("distTo " + (x - 1) + ", " + (y + 1) + "=" + dist);
             if (distTo[x - 1][y + 1] > dist) {
                 distTo[x - 1][y + 1] = dist;
@@ -149,7 +103,7 @@ public class SeamCarver {
             }
         }
         // down middle
-        dist = distTo[x][y] + ea[x][y + 1];
+        dist = distTo[x][y] + energy(x, y + 1);
         // StdOut.println("distTo " + (x) + ", " + (y + 1) + "=" + dist);
         if (distTo[x][y + 1] > dist) {
             distTo[x][y + 1] = dist;
@@ -157,7 +111,7 @@ public class SeamCarver {
         }
         // down right
         if (x < width() - 1) {
-            dist = distTo[x][y] + ea[x + 1][y + 1];
+            dist = distTo[x][y] + energy(x + 1, y + 1);
             // StdOut.println("distTo " + (x + 1) + ", " + (y + 1) + "=" + dist);
             if (distTo[x + 1][y + 1] > dist) {
                 distTo[x + 1][y + 1] = dist;
@@ -166,59 +120,31 @@ public class SeamCarver {
         }
     }
 
-    private void acyclicSP() {
-        mpq = new IndexMinPQ<>(width());
-        distTo = new double[width()][height()];
-        edgeTo = new int[width()][height()];
+    // sequence of indices for vertical seam
+    public int[] findVerticalSeam() {
+        double[][] distTo = new double[width()][height()];
+        int[][] edgeTo = new int[width()][height()];
+        IndexMinPQ<Double> mpq = new IndexMinPQ<>(width());
 
-        for (int row = 0; row < pic.height(); row++) {
-            for (int col = 0; col < pic.width(); col++) {
+        for (int row = 0; row < height(); row++) {
+            for (int col = 0; col < width(); col++) {
                 distTo[col][row] = Double.POSITIVE_INFINITY;
             }
         }
 
+        // acyclic shortest paths
         for (int y = 0; y < height(); y++) {
             for (int x = 0; x < width(); x++) {
                 if (y == 0) distTo[x][0] = 0.0;
+                // insert the weight of the last row into min PQ
                 if (y >= height() - 1) mpq.insert(x, distTo[x][y]);
-                relax(x, y);
+                else relax(x, y, distTo, edgeTo);
             }
         }
 
-        // topologicalOrder();
-        // StdOut.println("Topological order:");
-        // for (int v : reversePost) {
-        //     StdOut.printf("%d ", v);
-        //     int x = v % width();
-        //     int y = v / width();
-        //     relax(x, y);
-        // }
-        // StdOut.println();
-    }
-
-    // sequence of indices for vertical seam
-    public int[] findVerticalSeam() {
-        acyclicSP();
-        // StdOut.println("* vertical seam");
-        // for (int row = 0; row < height(); row++) {
-        //     for (int col = 0; col < width(); col++) {
-        //         StdOut.printf("%9.2f ", distTo[col][row]);
-        //     }
-        //     StdOut.println();
-        // }
-        // double shortest = Double.POSITIVE_INFINITY;
-        // int spx = 0;
-        // for (int x = 0; x < width(); x++) {
-        //     if (distTo[x][height() - 1] < shortest) {
-        //         shortest = distTo[x][height() - 1];
-        //         spx = x;
-        //     }
-        // }
-        // StdOut.println(
-        //         "min idx=" + mpq.minIndex() + " key=" + mpq.minKey() + " size=" + mpq.size());
-
-        int[] seam = new int[height()];
+        // get the x of the min weight from PQ
         int x = mpq.minIndex();
+        int[] seam = new int[height()];
         seam[height() - 1] = x;
 
         for (int y = height() - 2; y >= 0; y--) {
@@ -226,6 +152,14 @@ public class SeamCarver {
             seam[y] = edgeTo[x][y + 1];
             x = seam[y];
         }
+        return seam;
+    }
+
+    // sequence of indices for horizontal seam
+    public int[] findHorizontalSeam() {
+        transpose = true;
+        int[] seam = findVerticalSeam();
+        transpose = false;
         return seam;
     }
 
@@ -238,9 +172,14 @@ public class SeamCarver {
     }
 
     public void printEnergy() {
+        StdOut.println("w=" + width() + " h=" + height());
+        transpose = true;
+        StdOut.println("w=" + width() + " h=" + height());
         for (int row = 0; row < height(); row++) {
-            for (int col = 0; col < width(); col++)
-                StdOut.printf("%9.2f ", ea[col][row]);
+            for (int col = 0; col < width(); col++) {
+                StdOut.print("| (" + col + ", " + row + ")");
+                StdOut.printf("%9.2f ", energy(col, row));
+            }
             StdOut.println();
         }
     }
