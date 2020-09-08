@@ -61,16 +61,16 @@ public class SeamCarver {
         int r2 = (rgb2 >> 16) & 0xFF;
         int g2 = (rgb2 >> 8) & 0xFF;
         int b2 = (rgb2 >> 0) & 0xFF;
-        int Rdiff = r1 - r2;
-        int Gdiff = g1 - g2;
-        int Bdiff = b1 - b2;
-        double Rsq = 0;
-        double Gsq = 0;
-        double Bsq = 0;
-        if (Rdiff != 0) Rsq = Rdiff * Rdiff;
-        if (Gdiff != 0) Gsq = Gdiff * Gdiff;
-        if (Bdiff != 0) Bsq = Bdiff * Bdiff;
-        return Rsq + Gsq + Bsq;
+        int rdiff = r1 - r2;
+        int gdiff = g1 - g2;
+        int bdiff = b1 - b2;
+        double rsq = 0;
+        double gsq = 0;
+        double bsq = 0;
+        if (rdiff != 0) rsq = rdiff * rdiff;
+        if (gdiff != 0) gsq = gdiff * gdiff;
+        if (bdiff != 0) bsq = bdiff * bdiff;
+        return rsq + gsq + bsq;
     }
 
     private double calcEnergy(int x, int y) {
@@ -105,7 +105,7 @@ public class SeamCarver {
         return ea[x][y];
     }
 
-    public int color(int x, int y) {
+    private int color(int x, int y) {
         if (transpose) {
             int tmpX = x;
             x = y;
@@ -189,26 +189,26 @@ public class SeamCarver {
         return seam;
     }
 
-    private void printColors(int[][] cols) {
-        if (transpose) {
-            StdOut.println("* COLORS " + cols[0].length + "x" + cols.length);
-            for (int y = 0; y < cols.length; y++) {
-                for (int x = 0; x < cols[0].length; x++) {
-                    StdOut.printf("%9d ", cols[y][x]);
-                }
-                StdOut.println();
-            }
-        }
-        else {
-            StdOut.println("* COLORS " + cols.length + "x" + cols[0].length);
-            for (int y = 0; y < cols[0].length; y++) {
-                for (int x = 0; x < cols.length; x++) {
-                    StdOut.printf("%9d ", cols[x][y]);
-                }
-                StdOut.println();
-            }
-        }
-    }
+    // private void printColors(int[][] cols) {
+    //     if (transpose) {
+    //         StdOut.println("* COLORS " + cols[0].length + "x" + cols.length);
+    //         for (int y = 0; y < cols.length; y++) {
+    //             for (int x = 0; x < cols[0].length; x++) {
+    //                 StdOut.printf("%9d ", cols[y][x]);
+    //             }
+    //             StdOut.println();
+    //         }
+    //     }
+    //     else {
+    //         StdOut.println("* COLORS " + cols.length + "x" + cols[0].length);
+    //         for (int y = 0; y < cols[0].length; y++) {
+    //             for (int x = 0; x < cols.length; x++) {
+    //                 StdOut.printf("%9d ", cols[x][y]);
+    //             }
+    //             StdOut.println();
+    //         }
+    //     }
+    // }
 
     private void updatePic() {
         // StdOut.println("NEW PIC: " + colors.length + "x" + colors[0].length);
@@ -236,7 +236,7 @@ public class SeamCarver {
         return newcols;
     }
 
-    public double[][] removeSeamEnergy(int[] seam) {
+    private double[][] removeSeamEnergy(int[] seam) {
         int newWidth = width() - 1;
         double[][] newea = new double[newWidth][height()];
         // StdOut.println("NEW energy " + newWidth + "x" + height());
@@ -333,7 +333,7 @@ public class SeamCarver {
         // printEnergy(ea);
     }
 
-    public void printEnergy(double[][] enarr) {
+    private void printEnergy(double[][] enarr) {
         StdOut.println("* ENERGY " + enarr.length + "x" + enarr[0].length);
         for (int y = 0; y < enarr[0].length; y++) {
             for (int x = 0; x < enarr.length; x++) {
