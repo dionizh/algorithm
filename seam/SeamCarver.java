@@ -5,9 +5,6 @@
  **************************************************************************** */
 
 import edu.princeton.cs.algs4.Picture;
-import edu.princeton.cs.algs4.StdOut;
-
-import java.util.Arrays;
 
 public class SeamCarver {
 
@@ -212,17 +209,19 @@ public class SeamCarver {
         return newcols;
     }
 
-    private void validateSeam(int[] seam, int width, int height) {
+    private void validateSeam(int[] seam, int inWidth, int inHeight) {
         // StdOut.println("validateSeam image w=" + width + " h=" + height);
-        if (width <= 1)
+        if (inWidth <= 1)
             throw new IllegalArgumentException("Image length is less than or equal to 1");
-        if (seam.length != height)
+        if (seam.length != inHeight)
             throw new IllegalArgumentException("Seam length is outside of range");
-        for (int i = 0; i < seam.length - 1; i++) {
-            if (Math.abs(seam[i] - seam[i + 1]) > 1)
-                throw new IllegalArgumentException(
-                        "Seam two adjacent entries differ by more than 1");
-            if (seam[i] < 0 || seam[i] > width - 1)
+        for (int i = 0; i < seam.length; i++) {
+            if (i < seam.length - 1) {
+                if (Math.abs(seam[i] - seam[i + 1]) > 1)
+                    throw new IllegalArgumentException(
+                            "Seam two adjacent entries differ by more than 1");
+            }
+            if (seam[i] < 0 || seam[i] > inWidth - 1)
                 throw new IllegalArgumentException("Seam value is out of range");
         }
     }
@@ -265,17 +264,17 @@ public class SeamCarver {
 
     //  unit testing (optional)
     public static void main(String[] args) {
-        Picture picture = new Picture(args[0]);
-        SeamCarver sc = new SeamCarver(picture);
+        // Picture picture = new Picture(args[0]);
+        // SeamCarver sc = new SeamCarver(picture);
 
-        // int[] verticalSeam = new int[] { -1, 0, 1, 0, 0, 0, 0, 0, 0, 0 };
+        // int[] verticalSeam = new int[] { 2, 2, 1, 2, 2, 2, 3 };
         // int[] verticalSeam = sc.findVerticalSeam();
         // StdOut.println("vertical seam: " + Arrays.toString(verticalSeam));
         // sc.removeVerticalSeam(verticalSeam);
 
         // int[] horizontalSeam = sc.findHorizontalSeam();
-        int[] horizontalSeam = new int[] { 8, 9, 10, 10, 10, 9, 10, 10, 9, 8 };
-        StdOut.println("\nhorizontal seam: " + Arrays.toString(horizontalSeam));
-        sc.removeHorizontalSeam(horizontalSeam);
+        // int[] horizontalSeam = new int[] { 8, 9, 10, 10, 10, 9, 10, 10, 9, 8 };
+        // StdOut.println("\nhorizontal seam: " + Arrays.toString(horizontalSeam));
+        // sc.removeHorizontalSeam(horizontalSeam);
     }
 }
