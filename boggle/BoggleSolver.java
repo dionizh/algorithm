@@ -6,15 +6,14 @@
 
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.Queue;
+import edu.princeton.cs.algs4.SET;
 import edu.princeton.cs.algs4.StdOut;
 import edu.princeton.cs.algs4.TST;
-
-import java.util.TreeSet;
 
 public class BoggleSolver {
     private BoggleBoard bb;
     private boolean[] marked;  // marked[v] = is there an s->v path?
-    private final TreeSet<String> valids = new TreeSet<>();
+    private SET<String> valids;
     private final TST<Integer>[] rtrie;
 
     // Initializes the data structure using the given array of strings as the dictionary.
@@ -25,7 +24,8 @@ public class BoggleSolver {
             rtrie[c - 65] = new TST<>();
         }
         for (int i = 0; i < dictionary.length; i++) {
-            String word = dictionary[i];
+            String word = String.copyValueOf(dictionary[i].toCharArray());
+            // put defensive copy of the string
             rtrie[word.charAt(0) - 65].put(word, 1);
         }
     }
@@ -102,6 +102,7 @@ public class BoggleSolver {
 
     // Returns the set of all valid words in the given Boggle board, as an Iterable.
     public Iterable<String> getAllValidWords(BoggleBoard board) {
+        valids = new SET<>();
         // copy board argument to immutable private board
         char[][] bchars = new char[board.rows()][board.cols()];
         for (int i = 0; i < board.rows(); i++) {
@@ -121,9 +122,14 @@ public class BoggleSolver {
         return valids;
     }
 
+    private boolean wordExists(String w) {
+        return (((Queue<String>) rtrie[w.charAt(0) - 65].keysThatMatch(w)).size() > 0);
+    }
+
     // Returns the score of the given word if it is in the dictionary, zero otherwise.
     // (You can assume the word contains only the uppercase letters A through Z.)
     public int scoreOf(String word) {
+        if (!wordExists(word)) return 0;
         if (word.length() == 3) return 1;
         else if (word.length() == 4) return 1;
         else if (word.length() == 5) return 2;
@@ -138,12 +144,29 @@ public class BoggleSolver {
         String[] dictionary = in.readAllStrings();
         BoggleSolver solver = new BoggleSolver(dictionary);
         BoggleBoard board = new BoggleBoard(args[1]);
+        // BoggleBoard board = new BoggleBoard(2, 2);
         StdOut.println(board.toString());
         int score = 0;
+        int counter = 0;
         for (String word : solver.getAllValidWords(board)) {
             StdOut.println(word);
             score += solver.scoreOf(word);
+            counter++;
         }
         StdOut.println("Score = " + score);
+        StdOut.println("Count = " + counter);
+
+        score = 0;
+        counter = 0;
+        for (String word : solver.getAllValidWords(board)) {
+            StdOut.println(word);
+            score += solver.scoreOf(word);
+            counter++;
+        }
+        StdOut.println("Score 2 = " + score);
+        StdOut.println("Count 2 = " + counter);
+
+        // String w = "CONCEIVABLE";
+        // StdOut.println(w + " score= " + solver.scoreOf(w));
     }
 }
