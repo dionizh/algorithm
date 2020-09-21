@@ -15,11 +15,12 @@ public class BoggleSolver {
     private BoggleBoard bb;
     private boolean[] marked;  // marked[v] = is there an s->v path?
     private final TreeSet<String> valids = new TreeSet<>();
-    private final TST<Object>[] rtrie = new TST[26];
+    private final TST<Integer>[] rtrie;
 
     // Initializes the data structure using the given array of strings as the dictionary.
     // (You can assume each word in the dictionary contains only the uppercase letters A through Z.)
     public BoggleSolver(String[] dictionary) {
+        rtrie = (TST<Integer>[]) new TST[26];
         for (char c = 'A'; c <= 'Z'; ++c) {
             rtrie[c - 65] = new TST<>();
         }
@@ -30,20 +31,23 @@ public class BoggleSolver {
     }
 
     private int getV(int row, int col) {
-        return (row * bb.rows() + col);
+        return (row * bb.cols() + col);
     }
 
     private Iterable<Integer> getAdjacent(int v) {
-        int row = v / bb.rows();
+        int row = v / bb.cols();
         int col = v % bb.cols();
+
         Queue<Integer> adj = new Queue<>();
         if (row > 0) {
             if (col > 0) adj.enqueue(getV(row - 1, col - 1));
             adj.enqueue(getV(row - 1, col));
             if (col < bb.cols() - 1) adj.enqueue(getV(row - 1, col + 1));
         }
+
         if (col > 0) adj.enqueue(getV(row, col - 1));
         if (col < bb.cols() - 1) adj.enqueue(getV(row, col + 1));
+
         if (row < bb.rows() - 1) {
             if (col > 0) adj.enqueue(getV(row + 1, col - 1));
             adj.enqueue(getV(row + 1, col));
@@ -57,7 +61,7 @@ public class BoggleSolver {
     }
 
     private String getLetter(int v) {
-        char c = bb.getLetter(v / bb.rows(), v % bb.cols());
+        char c = bb.getLetter(v / bb.cols(), v % bb.cols());
         if (c == 'Q') return "QU";
         return String.valueOf(c);
     }
