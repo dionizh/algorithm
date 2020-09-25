@@ -12,11 +12,16 @@ import edu.princeton.cs.algs4.StdOut;
 import edu.princeton.cs.algs4.StdRandom;
 import edu.princeton.cs.algs4.TST;
 
+import java.util.HashMap;
+
 public class BoggleSolver {
     private static final int LETTERS = 256;
+    
     private BoggleBoard bb;
     private SET<String> valids;
+
     private final TST<Integer>[][] rtrie;
+    private final HashMap<String, Iterable<String>> pmap = new HashMap<>();
 
     // Initializes the data structure using the given array of strings as the dictionary.
     // (You can assume each word in the dictionary contains only the uppercase letters A through Z.)
@@ -98,12 +103,17 @@ public class BoggleSolver {
             if (tst == null) return false;
             if (length == 2) return true; // tst != null
 
-            // StdOut.println("keys with prefix " + next.substring(2));
-            Queue<String> keys = (Queue<String>) tst.keysWithPrefix(next.substring(2));
-            if (keys.size() == 0) {
+            String subs = next.substring(2);
+            Queue<String> prefixes = (Queue<String>) pmap.get(next);
+            if (prefixes == null) {
+                // StdOut.println("add prefixes [" + next + "]");
+                prefixes = (Queue<String>) tst.keysWithPrefix(subs);
+                pmap.put(next, prefixes);
+            }
+            if (prefixes.size() == 0) {
                 return false;
             }
-            for (String key : keys) {
+            for (String key : prefixes) {
                 // StdOut.println(" - key: " + key);
                 if (key.equals(next.substring(2))) {
                     // StdOut.println("* ADD " + next);
@@ -254,6 +264,24 @@ public class BoggleSolver {
             score += solver.scoreOf(word);
             counter++;
         }
+        // board = new BoggleBoard("board-qwerty.txt");
+        // solver.getAllValidWords(board);
+        // board = new BoggleBoard("board-quinquevalencies.txt");
+        // solver.getAllValidWords(board);
+        // board = new BoggleBoard("board-inconsequentially.txt");
+        // solver.getAllValidWords(board);
+        // board = new BoggleBoard("board-aqua.txt");
+        // solver.getAllValidWords(board);
+        // for (int i = 0; i < 20; i++) {
+        //     board = new BoggleBoard(5, 5);
+        //     solver.getAllValidWords(board);
+        // }
+        // in = new In("dictionary-16q.txt");
+        // dictionary = in.readAllStrings();
+        // solver = new BoggleSolver(dictionary);
+        // board = new BoggleBoard("board-16q.txt");
+        // solver.getAllValidWords(board);
+
         totalTime = System.nanoTime() - startTime;
         System.out.println("getAllValidWords time: " + totalTime / 1000000000.0);
         StdOut.println("Score = " + score);
