@@ -9,7 +9,7 @@ import edu.princeton.cs.algs4.BinaryStdOut;
 import edu.princeton.cs.algs4.Queue;
 
 public class MoveToFront {
-    private final static int EXTASCII = 256;
+    private static final int EXTASCII = 256;
 
     // apply move-to-front encoding, reading from standard input and writing to standard output
     public static void encode() {

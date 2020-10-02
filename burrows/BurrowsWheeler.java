@@ -45,7 +45,8 @@ public class BurrowsWheeler {
         char[] t = s.toCharArray();
         char[] f = t.clone();
         Arrays.sort(f);
-        for (int i = 0; i < s.length(); i++) {
+        int i = 0;
+        while (i < s.length()) {
             for (int j = 0; j < s.length(); j++) {
                 if (f[i] == t[j]) {
                     next[i] = j;
@@ -54,11 +55,12 @@ public class BurrowsWheeler {
                     if (i >= s.length()) break;
                 }
             }
+            i++;
         }
         char[] ori = new char[s.length()];
         int count = 0;
-        for (int i = first; count < s.length(); i = next[i]) {
-            ori[count++] = f[i];
+        for (int j = first; count < s.length(); j = next[j]) {
+            ori[count++] = f[j];
         }
         BinaryStdOut.write(new String(ori));
         BinaryStdOut.close();

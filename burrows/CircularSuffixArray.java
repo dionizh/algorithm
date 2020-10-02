@@ -16,13 +16,13 @@ import edu.princeton.cs.algs4.StdOut;
 
 public class CircularSuffixArray {
 
-    private String s;
-    private CircularSuffix[] suffixes;
+    private final String s;
+    private final CircularSuffix[] suffixes;
 
     private class CircularSuffix {
-        private String s;
-        private int start;
-        private int idx; // the original index
+        private final String s;
+        private final int start;
+        private final int idx; // the original index
 
         public CircularSuffix(String s, int start) {
             this.s = s;
@@ -36,15 +36,15 @@ public class CircularSuffixArray {
             return s.charAt(pos);
         }
 
-        public void printStr() {
-            int p = start;
-            for (int i = 0; i < s.length(); i++) {
-                StdOut.printf(String.valueOf(s.charAt(p++)) + " ");
-                if (p >= s.length()) p = 0;
-            }
-            StdOut.printf(" " + idx);
-            StdOut.println();
-        }
+        // public void printStr() {
+        //     int p = start;
+        //     for (int i = 0; i < s.length(); i++) {
+        //         StdOut.printf(String.valueOf(s.charAt(p++)) + " ");
+        //         if (p >= s.length()) p = 0;
+        //     }
+        //     StdOut.printf(" " + idx);
+        //     StdOut.println();
+        // }
     }
 
     // circular suffix array of s
