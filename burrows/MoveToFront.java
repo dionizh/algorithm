@@ -9,16 +9,16 @@ import edu.princeton.cs.algs4.BinaryStdOut;
 import edu.princeton.cs.algs4.Queue;
 
 public class MoveToFront {
+    private final static int EXTASCII = 256;
+
     // apply move-to-front encoding, reading from standard input and writing to standard output
     public static void encode() {
-        int EXTASCII = 256;
         char[] asc = new char[EXTASCII];
         for (char i = 0; i < EXTASCII; i++) asc[i] = i;
         Queue<Integer> out = new Queue<>();
 
         while (!BinaryStdIn.isEmpty()) {
             char c = BinaryStdIn.readChar();
-            // StdOut.println(String.valueOf(c));
             for (char i = 0; i < EXTASCII; i++) {
                 if (c == asc[i]) {
                     // "shift" copy array
@@ -30,7 +30,6 @@ public class MoveToFront {
             }
         }
         while (!out.isEmpty()) {
-            // StdOut.printf(out.dequeue() + " ");
             BinaryStdOut.write(out.dequeue(), 8);
         }
         BinaryStdOut.close();
@@ -38,7 +37,23 @@ public class MoveToFront {
 
     // apply move-to-front decoding, reading from standard input and writing to standard output
     public static void decode() {
+        char[] asc = new char[EXTASCII];
+        for (char i = 0; i < EXTASCII; i++) asc[i] = i;
+        Queue<Character> out = new Queue<>();
 
+        while (!BinaryStdIn.isEmpty()) {
+            int i = BinaryStdIn.readInt(8);
+            char c = asc[i];
+            out.enqueue(c);
+
+            // "shift" copy array
+            System.arraycopy(asc, 0, asc, 1, i);
+            asc[0] = c; // move to the front
+        }
+        while (!out.isEmpty()) {
+            BinaryStdOut.write(out.dequeue());
+        }
+        BinaryStdOut.close();
     }
 
     // if args[0] is "-", apply move-to-front encoding
