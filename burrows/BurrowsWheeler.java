@@ -7,8 +7,6 @@
 import edu.princeton.cs.algs4.BinaryStdIn;
 import edu.princeton.cs.algs4.BinaryStdOut;
 
-import java.util.Arrays;
-
 public class BurrowsWheeler {
     // apply Burrows-Wheeler transform,
     // reading from standard input and writing to standard output
@@ -43,8 +41,18 @@ public class BurrowsWheeler {
         String s = BinaryStdIn.readString();
         int[] next = new int[s.length()];
         char[] t = s.toCharArray();
-        char[] f = t.clone();
-        Arrays.sort(f);
+        char[] f = new char[t.length];
+
+        // sort first column with key-indexed counting
+        final int R = 256;
+        int[] count = new int[R + 1];
+        for (int i = 0; i < t.length; i++)
+            count[t[i] + 1]++;
+        for (int r = 0; r < R; r++)
+            count[r + 1] += count[r];
+        for (int i = 0; i < t.length; i++)
+            f[count[t[i]]++] = t[i];
+
         int i = 0;
         while (i < s.length()) {
             for (int j = 0; j < s.length(); j++) {
@@ -58,9 +66,9 @@ public class BurrowsWheeler {
             i++;
         }
         char[] ori = new char[s.length()];
-        int count = 0;
-        for (int j = first; count < s.length(); j = next[j]) {
-            ori[count++] = f[j];
+        int k = 0;
+        for (int j = first; k < s.length(); j = next[j]) {
+            ori[k++] = f[j];
         }
         BinaryStdOut.write(new String(ori));
         BinaryStdOut.close();

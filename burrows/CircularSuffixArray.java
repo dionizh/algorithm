@@ -12,6 +12,7 @@
  * Note, that while this is, perhaps, the cleanest solution, it is not the fastest.
  **************************************************************************** */
 
+import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.StdOut;
 
 public class CircularSuffixArray {
@@ -75,10 +76,11 @@ public class CircularSuffixArray {
     // 3-way string quicksort
     private static void sort(CircularSuffix[] suffixes, int lo, int hi, int d) {
         if (hi <= lo) return;
+        if (d >= suffixes.length) return;
         int lt = lo, gt = hi;
-        // StdOut.println("char " + suffixes[lo].charAt(d));
         int v = suffixes[lo].charAt(d);
         int i = lo + 1;
+        // StdOut.println("char at " + d + "=" + suffixes[lo].charAt(d) + " i=" + i + " gt=" + gt);
         while (i <= gt) {
             int t = suffixes[i].charAt(d);
             if (t < v) exch(suffixes, lt++, i++);
@@ -99,13 +101,18 @@ public class CircularSuffixArray {
     // returns index of ith sorted suffix
     public int index(int i) {
         // Throw an IllegalArgumentException in the method index() if i is outside its prescribed range (between 0 and n − 1).
+        if (i < 0 || i >= suffixes.length)
+            throw new IllegalArgumentException("index is out of bound");
         return suffixes[i].idx;
     }
 
     // unit testing (required)
     public static void main(String[] args) {
-        String s = "ABRACADABRA!";
+        // String s = "ABRACADABRA!";
+        In in = new In(args[0]);
+        String s = in.readString();
         CircularSuffixArray a = new CircularSuffixArray(s);
-        StdOut.println("index[11]=" + a.index(11));
+        // StdOut.println("index[11]=" + a.index(11));
+        StdOut.println("index[8]=" + a.index(8));
     }
 }

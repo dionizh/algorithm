@@ -6,7 +6,6 @@
 
 import edu.princeton.cs.algs4.BinaryStdIn;
 import edu.princeton.cs.algs4.BinaryStdOut;
-import edu.princeton.cs.algs4.Queue;
 
 public class MoveToFront {
     private static final int EXTASCII = 256;
@@ -15,7 +14,6 @@ public class MoveToFront {
     public static void encode() {
         char[] asc = new char[EXTASCII];
         for (char i = 0; i < EXTASCII; i++) asc[i] = i;
-        Queue<Integer> out = new Queue<>();
 
         while (!BinaryStdIn.isEmpty()) {
             char c = BinaryStdIn.readChar();
@@ -24,13 +22,10 @@ public class MoveToFront {
                     // "shift" copy array
                     System.arraycopy(asc, 0, asc, 1, i);
                     asc[0] = c; // move to the front
-                    out.enqueue((int) i);
+                    BinaryStdOut.write((int) i, 8); // write it out
                     break;
                 }
             }
-        }
-        while (!out.isEmpty()) {
-            BinaryStdOut.write(out.dequeue(), 8);
         }
         BinaryStdOut.close();
     }
@@ -39,19 +34,14 @@ public class MoveToFront {
     public static void decode() {
         char[] asc = new char[EXTASCII];
         for (char i = 0; i < EXTASCII; i++) asc[i] = i;
-        Queue<Character> out = new Queue<>();
 
         while (!BinaryStdIn.isEmpty()) {
             int i = BinaryStdIn.readInt(8);
             char c = asc[i];
-            out.enqueue(c);
-
+            BinaryStdOut.write(c);
             // "shift" copy array
             System.arraycopy(asc, 0, asc, 1, i);
             asc[0] = c; // move to the front
-        }
-        while (!out.isEmpty()) {
-            BinaryStdOut.write(out.dequeue());
         }
         BinaryStdOut.close();
     }
